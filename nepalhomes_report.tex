@@ -513,7 +513,7 @@ build and maintain a dedicated API server.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
-    [Agile Scrum Methodology Diagram --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/agile_scrum.png}
     \vspace{1cm}}}
   \caption{Agile Scrum Methodology}
   \label{fig:agile}
@@ -717,9 +717,11 @@ sellers, and administrators.
 
   \item \textbf{Interactive Map View:}
     The map page must display a full-screen Leaflet.js map centred on Nepal
-    with markers for all available properties. Clicking a marker must open a
-    popup with the property image, title, price, and a link to the detail page.
-    The map must support clustered search by city using location chip filters.
+    with markers from the hardcoded \texttt{PROPERTIES} array in
+    \texttt{js/data.js}. Clicking a marker
+    must open a popup with the property image, title, price, and a link to the
+    detail page. The map supports status/type pill filters (All, Sale, Rent,
+    House, Apartment, Land).
 
   \item \textbf{Property Comparison:}
     Users must be able to select up to three properties from a search-enabled
@@ -838,7 +840,7 @@ Testing, Bug Fixing, and Polish         & 3 weeks \\
 
 \begin{figure}[H]
   \begin{flushleft}
-    [Gantt Chart of NepalHomes Development Schedule --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/gantt_chart.png}
   \end{flushleft}
   \caption{Gantt Chart of NepalHomes Development Schedule}
   \label{fig:gantt}
@@ -857,7 +859,7 @@ Approve/Reject Listing, and View Admin Dashboard.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{0.82\textwidth}{\centering\vspace{1cm}
-    [Use Case Diagram of NepalHomes --- replace with actual figure]
+    \includegraphics[width=0.8\textwidth]{figures/use_case_diagram.png}
     \vspace{1cm}}}
   \caption{Use Case Diagram of NepalHomes}
   \label{fig:usecase}
@@ -872,7 +874,7 @@ entity, referenced by SavedList entries, Tour records, and AdminAction events.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
-    [Class Diagram of NepalHomes --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/class_diagram.png}
     \vspace{1cm}}}
   \caption{Class Diagram of NepalHomes}
   \label{fig:class}
@@ -888,12 +890,13 @@ submits; the frontend writes a \texttt{properties} document to Firestore with
 \texttt{status: pending}; the Admin opens \texttt{admin.html}, which queries all
 Firestore properties; the Admin clicks Approve; the frontend updates the document
 \texttt{status} field to \texttt{approved}; approved properties become visible in
-the public search results and map view.
+the public search results. The current \texttt{map.html} implementation still
+renders only the static \texttt{PROPERTIES} array.
 
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
-    [Sequence Diagram: Property Listing and Approval Flow --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/sequence_diagram.png}
     \vspace{1cm}}}
   \caption{Sequence Diagram: Property Listing and Approval Flow}
   \label{fig:sequence}
@@ -914,7 +917,7 @@ document; the saved property appears in the Buyer Dashboard under Saved Properti
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
-    [Activity Diagram: Buyer Search and Save Workflow --- replace with actual figure]
+    \includegraphics[width=0.9\textwidth]{figures/activity_diagram.png}
     \vspace{1cm}}}
   \caption{Activity Diagram: Buyer Property Search and Save Workflow}
   \label{fig:activity}
@@ -972,7 +975,7 @@ in Cloud Firestore as document collections:
 \begin{figure}[H]
   \centering
   \fbox{\parbox{0.82\textwidth}{\centering\vspace{1cm}
-    [Refined Class Diagram of NepalHomes --- replace with actual figure]
+    \includegraphics[width=0.85\textwidth]{figures/refined_class_diagram.png}
     \vspace{1cm}}}
   \caption{Refined Class Diagram of NepalHomes}
   \label{fig:refined-class}
@@ -1020,8 +1023,7 @@ The \texttt{map.html} page loads Leaflet.js from CDN and renders a full-screen
 map initialised at Nepal's geographic centroid (28.3949\textdegree N,
 84.124\textdegree E, zoom 7). Each of the 45 static demo properties is plotted
 as a custom marker rendered by \texttt{propertyCardHTML(p)} embedded in a Leaflet
-popup. City filter chips trigger \texttt{setView()} calls to pan the map to
-selected cities.
+popup. Status/type pill filters control which property markers are displayed.
 
 \noindent\textbf{v.\ Chart.js Visualisation Engine:}
 
@@ -1041,7 +1043,7 @@ card HTML for use across the search, compare, and map pages.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{0.82\textwidth}{\centering\vspace{1cm}
-    [Component Diagram of NepalHomes --- replace with actual figure]
+    \includegraphics[width=0.85\textwidth]{figures/component_diagram.png}
     \vspace{1cm}}}
   \caption{Component Diagram of NepalHomes}
   \label{fig:component}
@@ -1084,7 +1086,7 @@ at page load and cached for subsequent visits.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{0.82\textwidth}{\centering\vspace{1cm}
-    [Deployment Diagram of NepalHomes --- replace with actual figure]
+    \includegraphics[width=0.85\textwidth]{figures/deployment_diagram.png}
     \vspace{1cm}}}
   \caption{Deployment Diagram of NepalHomes}
   \label{fig:deployment}
@@ -1592,7 +1594,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Home Page (index.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/home_page.png}
     \vspace{1.2cm}}}
   \caption{NepalHomes Home Page}
   \label{fig:home}
@@ -1601,7 +1603,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Login Page (login.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.8\textwidth]{figures/login_page.png}
     \vspace{1.2cm}}}
   \caption{Login Page}
   \label{fig:login}
@@ -1610,7 +1612,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Search Page (search.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/search_page.png}
     \vspace{1.2cm}}}
   \caption{Property Search Page with Filters}
   \label{fig:search}
@@ -1619,7 +1621,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Property Detail Page (property.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/property_page.png}
     \vspace{1.2cm}}}
   \caption{Property Detail Page}
   \label{fig:property}
@@ -1628,7 +1630,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Map View (map.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/map_page.png}
     \vspace{1.2cm}}}
   \caption{Interactive Map View}
   \label{fig:map}
@@ -1637,7 +1639,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Comparison Tool (compare.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/compare_page.png}
     \vspace{1.2cm}}}
   \caption{Property Comparison Tool}
   \label{fig:compare}
@@ -1646,7 +1648,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Market Insights (insights.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/insights_page.png}
     \vspace{1.2cm}}}
   \caption{Market Insights Page with Chart.js Visualisations}
   \label{fig:insights}
@@ -1655,7 +1657,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Buyer Dashboard (buyer-dashboard.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/buyer_dashboard_mock.png}
     \vspace{1.2cm}}}
   \caption{Buyer Dashboard -- Saved Properties, Tours, and Alerts}
   \label{fig:buyer-dash}
@@ -1664,7 +1666,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Seller Dashboard (seller-dashboard.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/seller_dashboard_mock.png}
     \vspace{1.2cm}}}
   \caption{Seller Dashboard -- My Listings and Analytics}
   \label{fig:seller-dash}
@@ -1673,7 +1675,7 @@ The following figures illustrate the key pages of the NepalHomes application.
 \begin{figure}[H]
   \centering
   \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
-    [Admin Dashboard (admin.html) Screenshot --- replace with actual figure]
+    \includegraphics[width=0.95\textwidth]{figures/admin_dashboard_mock.png}
     \vspace{1.2cm}}}
   \caption{Admin Dashboard -- Pending Approvals and User Registry}
   \label{fig:admin-dash}
