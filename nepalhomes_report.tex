@@ -717,7 +717,8 @@ sellers, and administrators.
 
   \item \textbf{Interactive Map View:}
     The map page must display a full-screen Leaflet.js map centred on Nepal
-    with markers for the static \texttt{PROPERTIES} dataset. Clicking a marker
+    with markers from the hardcoded \texttt{PROPERTIES} array in
+    \texttt{js/data.js}. Clicking a marker
     must open a popup with the property image, title, price, and a link to the
     detail page. The map supports status/type pill filters (All, Sale, Rent,
     House, Apartment, Land).
@@ -889,7 +890,8 @@ submits; the frontend writes a \texttt{properties} document to Firestore with
 \texttt{status: pending}; the Admin opens \texttt{admin.html}, which queries all
 Firestore properties; the Admin clicks Approve; the frontend updates the document
 \texttt{status} field to \texttt{approved}; approved properties become visible in
-the public search results.
+the public search results. The current \texttt{map.html} implementation still
+renders only the static \texttt{PROPERTIES} array.
 
 \begin{figure}[H]
   \centering
