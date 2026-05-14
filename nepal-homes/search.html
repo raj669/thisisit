@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Properties — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .search-page { display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 32px 0 60px; }
+    .filter-panel { background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); padding: 20px; position: sticky; top: 80px; height: fit-content; }
+    .filter-section { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--stone-100); }
+    .filter-section:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .filter-title { font-size: 0.85rem; font-weight: 700; color: var(--stone-700); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .search-header { display: flex; gap: 10px; margin-bottom: 20px; }
+    .results-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .empty-state { text-align: center; padding: 80px 20px; background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); }
+    .range-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 768px) {
+      .search-page { grid-template-columns: 1fr; }
+      .filter-panel { position: static; }
+    }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container">
+  <div class="search-page">
+    <!-- Filters -->
+    <aside class="filter-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3>Filters</h3>
+        <button onclick="clearFilters()" class="btn btn-ghost btn-sm">Clear All</button>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Status</div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-all" onclick="setStatus('all',this)">All</button>
+          <button class="tab-btn" id="tab-sale" onclick="setStatus('for_sale',this)">Sale</button>
+          <button class="tab-btn" id="tab-rent" onclick="setStatus('for_rent',this)">Rent</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Property Type</div>
+        <div class="pill-filters" id="typeFilters"></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">City</div>
+        <select class="form-select" id="cityFilter" onchange="applyFilters()">
+          <option value="">Any City</option>
+        </select>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Price Range (Rs.)</div>
+        <div class="range-row">
+          <input type="number" class="form-input" id="minPrice" placeholder="Min" oninput="applyFilters()">
+          <input type="number" class="form-input" id="maxPrice" placeholder="Max" oninput="applyFilters()">
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Min Bedrooms</div>
+        <div class="pill-filters" id="bedFilters"></div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Sort By</div>
+        <select class="form-select" id="sortBy" onchange="applyFilters()">
+          <option value="newest">Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- Results -->
+    <main>
+      <div class="search-header">
+        <div class="input-wrap" style="flex:1;">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="searchInput" class="form-input icon-left" placeholder="Search by location, city, or keyword...">
+        </div>
+      </div>
+      <div class="results-meta">
+        <p class="text-sm text-muted"><span id="resultCount" style="font-weight:700;color:var(--stone-900);">0</span> properties found</p>
+      </div>
+      <div class="grid-3" id="resultsGrid"></div>
+      <div class="empty-state hidden" id="emptyState">
+        <div style="font-size:3rem;margin-bottom:12px;">🏠</div>
+        <h3>No properties found</h3>
+        <p class="text-muted text-sm mt-2">Try adjusting your filters or search query</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="footer"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  let filters = {
+    q: params.get('q') || '',
+    type: params.get('type') || '',
+    status: params.get('status') || '',
+    city: '', minPrice: '', maxPrice: '', beds: '',
+    sort: 'newest'
+  };
+
+  // Populate cities
+  const citySelect = document.getElementById('cityFilter');
+  CITIES.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; citySelect.appendChild(o); });
+  if (filters.city) citySelect.value = filters.city;
+
+  // Type pills
+  const typeContainer = document.getElementById('typeFilters');
+  ['house','apartment','land','commercial'].forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (filters.type === t ? ' active' : '');
+    btn.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+    btn.dataset.type = t;
+    btn.onclick = function() {
+      filters.type = filters.type === t ? '' : t;
+      document.querySelectorAll('#typeFilters .pill').forEach(p => p.classList.remove('active'));
+      if (filters.type) this.classList.add('active');
+      applyFilters();
+    };
+    typeContainer.appendChild(btn);
+  });
+
+  // Bed pills
+  const bedContainer = document.getElementById('bedFilters');
+  ['1+','2+','3+','4+'].forEach((l, i) => {
+    const n = i + 1;
+    const btn = document.createElement('button');
+    btn.className = 'pill';
+    btn.textContent = l;
+    btn.onclick = function() {
+      filters.beds = filters.beds === String(n) ? '' : String(n);
+      document.querySelectorAll('#bedFilters .pill').forEach(p => p.classList.remove('active'));
+      if (filters.beds) this.classList.add('active');
+      applyFilters();
+    };
+    bedContainer.appendChild(btn);
+  });
+
+  // Status
+  function setStatus(s, btn) {
+    filters.status = s === 'all' ? '' : s;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  document.getElementById('searchInput').value = filters.q;
+  document.getElementById('searchInput').addEventListener('input', e => { filters.q = e.target.value; applyFilters(); });
+  document.getElementById('cityFilter').addEventListener('change', e => { filters.city = e.target.value; applyFilters(); });
+  document.getElementById('minPrice').addEventListener('input', e => { filters.minPrice = e.target.value; applyFilters(); });
+  document.getElementById('maxPrice').addEventListener('input', e => { filters.maxPrice = e.target.value; applyFilters(); });
+  document.getElementById('sortBy').addEventListener('change', e => { filters.sort = e.target.value; applyFilters(); });
+
+  function clearFilters() {
+    filters = { q: '', type: '', status: '', city: '', minPrice: '', maxPrice: '', beds: '', sort: 'newest' };
+    document.getElementById('searchInput').value = '';
+    document.getElementById('cityFilter').value = '';
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-all').classList.add('active');
+    applyFilters();
+  }
+
+  // All listings: static properties + Firestore approved listings merged
+  let _allListings = [...PROPERTIES];
+
+  function applyFilters() {
+    let result = [..._allListings];
+    if (filters.q) {
+      const q = filters.q.toLowerCase();
+      result = result.filter(p =>
+        (p.title||'').toLowerCase().includes(q) ||
+        (p.location||'').toLowerCase().includes(q) ||
+        (p.city||'').toLowerCase().includes(q) ||
+        (p.district||'').toLowerCase().includes(q)
+      );
+    }
+    if (filters.type) result = result.filter(p => p.type === filters.type);
+    if (filters.status) result = result.filter(p => p.status === filters.status);
+    if (filters.city) result = result.filter(p => p.city === filters.city);
+    if (filters.minPrice) result = result.filter(p => p.price >= Number(filters.minPrice));
+    if (filters.maxPrice) result = result.filter(p => p.price <= Number(filters.maxPrice));
+    if (filters.beds) result = result.filter(p => p.beds && p.beds >= Number(filters.beds));
+    if (filters.sort === 'price_asc') result.sort((a,b) => a.price - b.price);
+    if (filters.sort === 'price_desc') result.sort((a,b) => b.price - a.price);
+
+    document.getElementById('resultCount').textContent = result.length;
+    const grid = document.getElementById('resultsGrid');
+    const empty = document.getElementById('emptyState');
+    if (result.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); }
+    else { empty.classList.add('hidden'); grid.innerHTML = result.map(propertyCardHTML).join(''); }
+  }
+
+  applyFilters();
+
+  // Merge Firestore approved listings into results
+  (async () => {
+    try {
+      const snap = await db.collection('properties').where('status', '==', 'approved').get();
+      const fsProps = snap.docs.map(d => {
+        const p = d.data();
+        return {
+          id: d.id,
+          title: p.title || 'Property',
+          price: p.price || 0,
+          status: p.purpose || 'for_sale',
+          type: p.type || 'house',
+          city: p.city || p.district || '',
+          district: p.district || '',
+          location: [p.tole, p.municipality].filter(Boolean).join(', ') || p.district || '',
+          address: [p.tole, p.municipality, p.district].filter(Boolean).join(', '),
+          beds: p.beds || null, baths: p.baths || null,
+          area: p.area || 0, areaUnit: p.areaUnit || 'aana',
+          image: p.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80',
+          features: p.features || [], description: p.description || '',
+          facing: p.facing || '', road: p.road || '', featured: false,
+          agent: { name: p.sellerName || 'Seller', phone: p.sellerPhone || '+977-9800000000', image: 'https://randomuser.me/api/portraits/men/32.jpg' },
+        };
+      });
+      if (fsProps.length > 0) {
+        _allListings = [...PROPERTIES, ...fsProps];
+        applyFilters();
+      }
+    } catch(_) {}
+  })();
+
+  // Restore saved states after auth resolves
+  onAuthReady(async user => {
+    if (user) {
+      const saved = await getSaved();
+      saved.forEach(id => {
+        const btn = document.querySelector(`.property-card[data-id="${id}"] .save-btn`);
+        if (btn) { btn.classList.add('saved'); btn.title = 'Remove from saved'; }
+      });
+    }
+  });
+</script>
+</body>
+</html>
+
+
+

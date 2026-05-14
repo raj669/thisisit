@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: var(--stone-50); }
+    .auth-layout { min-height: 100vh; display: flex; }
+    .auth-left {
+      width: 45%; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between;
+      background: linear-gradient(160deg, #1a0f0a 0%, #3d3224 60%, #652f1e 100%);
+      padding: 40px; position: relative; overflow: hidden;
+    }
+    .auth-left-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80') center/cover; opacity: 0.15; }
+    .auth-right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+    .auth-form-box { width: 100%; max-width: 420px; }
+    .role-btns { display: flex; gap: 8px; }
+    .role-btn { flex: 1; padding: 10px; border-radius: var(--radius); border: 1.5px solid var(--stone-200); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); background: none; color: var(--stone-500); }
+    .role-btn.active { border-color: var(--terra-500); background: var(--terra-50); color: var(--terra-700); }
+    .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-size: 0.82rem; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; display: none; }
+    .error-msg.show { display: block; }
+    .auth-feature { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; color: #c4b49a; font-size: 0.85rem; }
+    .auth-feature-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+    @media (max-width: 768px) { .auth-left { display: none; } }
+  </style>
+</head>
+<body>
+<div class="auth-layout">
+  <!-- Left panel -->
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <div style="position:relative;">
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;">
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <span style="font-weight:700;font-size:1.2rem;color:white;">Nepal<em style="font-style:normal;color:#e08052;">Homes</em></span>
+      </a>
+    </div>
+    <div style="position:relative;">
+      <h2 style="font-size:1.8rem;color:white;margin-bottom:16px;">Join Nepal's<br>Real Estate Platform</h2>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🏠</div>
+        <span>List or browse properties across Nepal</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🔒</div>
+        <span>Secure login with Firebase Authentication</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📍</div>
+        <span>District-level search with local land units</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📞</div>
+        <span>Connect directly with verified sellers</span>
+      </div>
+    </div>
+    <p style="position:relative;color:#5c4c35;font-size:0.8rem;">© 2026 NepalHomes</p>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-right">
+    <div class="auth-form-box">
+      <h2 style="margin-bottom:4px;">Create account</h2>
+      <p class="text-muted text-sm mb-5">Join thousands of property seekers in Nepal</p>
+
+      <div id="regError" class="error-msg"></div>
+
+      <div class="form-group">
+        <label class="form-label">I am a</label>
+        <div class="role-btns">
+          <button class="role-btn active" id="roleBtn-buyer" onclick="setRole('buyer',this)">Buyer / Tenant</button>
+          <button class="role-btn" id="roleBtn-seller" onclick="setRole('seller',this)">Seller / Owner</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" id="regFirst" class="form-input" placeholder="Ram">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" id="regLast" class="form-input" placeholder="Sharma">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <input type="tel" id="regPhone" class="form-input icon-left" placeholder="+977-98XXXXXXXX">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <input type="email" id="regEmail" class="form-input icon-left" placeholder="your@email.com">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          <input type="password" id="regPass" class="form-input icon-left" placeholder="Min 6 characters" style="padding-right:38px;">
+          <svg class="input-icon-right" onclick="togglePass()" style="cursor:pointer;" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+      </div>
+
+      <p class="text-xs text-muted mb-3">By registering, you agree to our <a href="#" style="color:var(--terra-600);">Terms</a> and <a href="#" style="color:var(--terra-600);">Privacy Policy</a>.</p>
+
+      <button class="btn btn-primary btn-full" id="regBtn" onclick="doRegister()">Create Account</button>
+
+      <p class="text-center text-sm mt-4" style="color:var(--stone-500);">
+        Already have an account?
+        <a href="login.html" style="color:var(--terra-600);font-weight:600;margin-left:4px;">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  let selectedRole = 'buyer';
+
+  // Redirect already-logged-in users
+  onAuthReady(user => {
+    if (user) {
+      if (user.role === 'admin')  location.href = 'admin.html';
+      else if (user.role === 'seller') location.href = 'list-property.html';
+      else location.href = 'index.html';
+    }
+  });
+
+  function setRole(role, btn) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function togglePass() {
+    const inp = document.getElementById('regPass');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  async function doRegister() {
+    const err = document.getElementById('regError');
+    err.classList.remove('show');
+
+    const firstName = document.getElementById('regFirst').value.trim();
+    const lastName  = document.getElementById('regLast').value.trim();
+    const phone     = document.getElementById('regPhone').value.trim();
+    const email     = document.getElementById('regEmail').value.trim();
+    const password  = document.getElementById('regPass').value;
+
+    if (!firstName) { err.textContent = 'First name is required.'; err.classList.add('show'); return; }
+    if (!email)     { err.textContent = 'Email is required.'; err.classList.add('show'); return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('show'); return; }
+
+    const btn = document.getElementById('regBtn');
+    btn.textContent = 'Creating account…'; btn.disabled = true;
+
+    const result = await register({ firstName, lastName, email, phone, password, role: selectedRole });
+    if (result.error) {
+      err.textContent = result.error; err.classList.add('show');
+      btn.textContent = 'Create Account'; btn.disabled = false;
+      return;
+    }
+    // Proposal: Seller → Add Property page, Buyer → Home page
+    location.href = selectedRole === 'seller' ? 'list-property.html' : 'index.html';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+</script>
+</body>
+</html>

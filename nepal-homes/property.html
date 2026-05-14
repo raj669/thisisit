@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Detail — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .detail-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; }
+    .gallery { border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 12px; position: relative; }
+    .gallery-main { width: 100%; height: 420px; object-fit: cover; }
+    .gallery-thumbs { display: flex; gap: 8px; }
+    .gallery-thumb { width: 72px; height: 54px; object-fit: cover; border-radius: var(--radius-sm); cursor: pointer; border: 2px solid transparent; transition: var(--transition); }
+    .gallery-thumb.active { border-color: var(--terra-500); }
+    .gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); transition: var(--transition); border: none; }
+    .gallery-nav:hover { background: white; }
+    .gallery-nav.prev { left: 12px; }
+    .gallery-nav.next { right: 12px; }
+    .gallery-badges { position: absolute; top: 14px; left: 14px; display: flex; gap: 6px; }
+    .gallery-actions { position: absolute; top: 14px; right: 14px; display: flex; gap: 8px; }
+    .gallery-action-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: var(--transition); }
+    .gallery-action-btn:hover { background: white; }
+    .gallery-action-btn svg { width: 15px; height: 15px; fill: var(--stone-500); }
+    .detail-title { font-size: 1.6rem; font-weight: 700; }
+    .quick-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 20px 0; }
+    .qs-card { background: var(--stone-50); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .qs-val { font-weight: 600; color: var(--stone-800); font-size: 0.9rem; }
+    .qs-lbl { font-size: 0.72rem; color: var(--stone-400); margin-top: 3px; }
+    .qs-icon { font-size: 1.1rem; margin-bottom: 4px; }
+    .features-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .feature-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; background: #f0fdf4; color: var(--forest-500); border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 20px; }
+    .sidebar-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); padding: 20px; margin-bottom: 16px; }
+    .agent-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .agent-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+    .detail-row { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--stone-50); font-size: 0.85rem; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--stone-400); width: 120px; flex-shrink: 0; }
+    .detail-val { color: var(--stone-700); font-weight: 600; text-transform: capitalize; }
+    .similar-section { margin-top: 48px; }
+    @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .quick-stats { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container page-content">
+  <a href="javascript:history.back()" style="display:inline-flex;align-items:center;gap:6px;color:var(--stone-400);font-size:0.85rem;margin-bottom:20px;transition:var(--transition);" onmouseover="this.style.color='var(--terra-600)'" onmouseout="this.style.color='var(--stone-400)'">
+    ← Back to listings
+  </a>
+
+  <div id="propertyContent"></div>
+</div>
+
+<div id="footer"></div>
+<div id="propToast" style="position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:white;padding:12px 20px;border-radius:8px;font-size:0.85rem;z-index:9999;opacity:0;transition:opacity 0.3s;max-width:320px;"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('propToast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 3000);
+  }
+
+  const idParam = new URLSearchParams(location.search).get('id') || '';
+  const numericId = Number(idParam);
+  const staticProp = PROPERTIES.find(x => x.id === numericId);
+
+  function startRender(p) {
+    document.title = `${p.title} — NepalHomes`;
+    const idJs = typeof p.id === 'number' ? p.id : `'${p.id}'`;
+    let imgIdx = 0;
+    const imgs = p.images || [p.image];
+
+    function renderDetail() {
+      const similar = PROPERTIES.filter(x => x.id !== p.id && x.type === p.type).slice(0,3);
+      document.getElementById('propertyContent').innerHTML = `
+      <div class="detail-grid">
+        <div>
+          <!-- Gallery -->
+          <div class="gallery">
+            <img id="mainImg" src="${imgs[0]}" alt="${p.title}" class="gallery-main">
+            <div class="gallery-badges">
+              <span class="badge ${p.status==='for_rent'?'badge-rent':'badge-sale'}">${p.status==='for_rent'?'For Rent':'For Sale'}</span>
+              <span class="badge badge-type">${p.type}</span>
+              ${p.featured ? '<span class="badge badge-featured">Featured</span>' : ''}
+            </div>
+            <div class="gallery-actions">
+              <button class="gallery-action-btn ${isSaved(p.id)?'save-btn saved':'save-btn'}" id="saveBtn" onclick="handleSave(${idJs}, this)">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </button>
+            </div>
+            ${imgs.length > 1 ? `
+              <button class="gallery-nav prev" onclick="changeImg(-1)">‹</button>
+              <button class="gallery-nav next" onclick="changeImg(1)">›</button>
+            ` : ''}
+          </div>
+          ${imgs.length > 1 ? `
+          <div class="gallery-thumbs mb-4">
+            ${imgs.map((img,i) => `<img src="${img}" class="gallery-thumb ${i===0?'active':''}" onclick="setImg(${i})" data-idx="${i}">`).join('')}
+          </div>` : ''}
+
+          <!-- Title & Price -->
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+            <div>
+              <h1 class="detail-title">${p.title}</h1>
+              <div style="display:flex;align-items:center;gap:5px;color:var(--stone-400);font-size:0.85rem;margin-top:4px;">
+                📍 ${p.address}
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.7rem;font-weight:700;color:var(--terra-600);">${formatPrice(p.price, p.status)}</div>
+              ${p.pricePerAana ? `<div class="text-xs text-muted">Rs. ${p.pricePerAana.toLocaleString()}/aana</div>` : ''}
+            </div>
+          </div>
+
+          <!-- Quick stats -->
+          <div class="quick-stats">
+            <div class="qs-card"><div class="qs-icon">🛏️</div><div class="qs-val">${p.beds ? p.beds+' Beds' : 'N/A'}</div><div class="qs-lbl">Bedrooms</div></div>
+            <div class="qs-card"><div class="qs-icon">🚿</div><div class="qs-val">${p.baths ? p.baths+' Baths' : 'N/A'}</div><div class="qs-lbl">Bathrooms</div></div>
+            <div class="qs-card"><div class="qs-icon">📐</div><div class="qs-val">${p.area} ${p.areaUnit}</div><div class="qs-lbl">Area</div></div>
+            <div class="qs-card"><div class="qs-icon">🏗️</div><div class="qs-val">${p.yearBuilt || 'N/A'}</div><div class="qs-lbl">Year Built</div></div>
+          </div>
+
+          <!-- Details -->
+          <div class="card card-padded mb-4">
+            <h3 style="margin-bottom:16px;">Property Details</h3>
+            <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${p.type}</span></div>
+            <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val">${p.status==='for_rent'?'For Rent':'For Sale'}</span></div>
+            <div class="detail-row"><span class="detail-key">City</span><span class="detail-val">${p.city}</span></div>
+            <div class="detail-row"><span class="detail-key">District</span><span class="detail-val">${p.district}</span></div>
+            <div class="detail-row"><span class="detail-key">Facing</span><span class="detail-val">${p.facing || 'N/A'}</span></div>
+            <div class="detail-row"><span class="detail-key">Road Width</span><span class="detail-val">${p.road || 'N/A'}</span></div>
+          </div>
+
+          <!-- Description -->
+          <div class="card card-padded mb-4">
+            <h3 style="margin-bottom:10px;">Description</h3>
+            <p class="text-sm" style="color:var(--stone-600);line-height:1.8;">${p.description}</p>
+          </div>
+
+          <!-- Features -->
+          <div class="card card-padded mb-4">
+            <h3 style="margin-bottom:14px;">Amenities & Features</h3>
+            <div class="features-wrap">
+              ${p.features.map(f => `<span class="feature-tag">✓ ${f}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+          <div class="sidebar-card" style="position:sticky;top:80px;">
+            <div class="agent-row">
+              <img src="${p.agent.image}" alt="${p.agent.name}" class="agent-img">
+              <div><div style="font-weight:600;font-size:0.9rem;">${p.agent.name}</div><div class="text-xs text-muted">Property Agent</div></div>
+            </div>
+            <div class="form-group"><input type="text" class="form-input" placeholder="Your Name"></div>
+            <div class="form-group"><input type="tel" class="form-input" placeholder="Your Phone Number"></div>
+            <div class="form-group"><textarea class="form-textarea" rows="3" placeholder="I'm interested in this property..."></textarea></div>
+            <button class="btn btn-primary btn-full mb-2" onclick="sendMsg(this)">💬 Send Message</button>
+            <a href="tel:${p.agent.phone}" class="btn btn-secondary btn-full">📞 ${p.agent.phone}</a>
+
+            <hr class="divider">
+            <h4 style="font-size:0.85rem;margin-bottom:12px;">Schedule a Visit</h4>
+            <div class="form-group"><input type="date" class="form-input"></div>
+            <div class="form-group">
+              <select class="form-select">
+                <option>10:00 AM</option><option>12:00 PM</option>
+                <option>2:00 PM</option><option>4:00 PM</option>
+              </select>
+            </div>
+            <button class="btn btn-dark btn-full" onclick="bookVisit()">Book Visit</button>
+          </div>
+        </div>
+      </div>
+
+      ${similar.length > 0 ? `
+      <div class="similar-section">
+        <h2 style="margin-bottom:20px;">Similar Properties</h2>
+        <div class="grid-3">${similar.map(propertyCardHTML).join('')}</div>
+      </div>` : ''}
+      `;
+    }
+
+    renderDetail();
+
+    window.handleSave = async function(id, btn) {
+      await toggleSaved(id, btn);
+    };
+
+    window.sendMsg = function(btn) {
+      const nameInput = btn.closest('.sidebar-card').querySelectorAll('input')[0];
+      const phoneInput = btn.closest('.sidebar-card').querySelectorAll('input')[1];
+      const msgInput = btn.closest('.sidebar-card').querySelector('textarea');
+      if (!nameInput.value.trim()) { nameInput.focus(); showToast('Please enter your name.'); return; }
+      if (!phoneInput.value.trim()) { phoneInput.focus(); showToast('Please enter your phone number.'); return; }
+      btn.textContent = '✓ Message Sent!';
+      btn.disabled = true;
+      showToast('Your message has been sent to ' + p.agent.name + '. They will contact you shortly.');
+    };
+
+    window.bookVisit = async function() {
+      const dateInput = document.querySelector('.sidebar-card input[type=date]');
+      const timeSelect = document.querySelector('.sidebar-card select');
+      const date = dateInput ? dateInput.value : '';
+      const time = timeSelect ? timeSelect.value : '10:00 AM';
+      if (!date) { alert('Please select a date for your visit.'); return; }
+      if (!isLoggedIn()) { location.href = 'login.html?redirect=' + encodeURIComponent(location.href); return; }
+      const btn = document.querySelector('.btn-dark');
+      if (btn) { btn.textContent = 'Booking…'; btn.disabled = true; }
+      const added = await addTour(p.id, date, time);
+      if (btn) { btn.textContent = 'Book Visit'; btn.disabled = false; }
+      if (added) {
+        showToast('Tour booked for ' + date + ' at ' + time + '! View in your dashboard.');
+      } else {
+        showToast('You already have a tour for this time slot.');
+      }
+    };
+
+    window.changeImg = function(dir) {
+      imgIdx = (imgIdx + dir + imgs.length) % imgs.length;
+      document.getElementById('mainImg').src = imgs[imgIdx];
+      document.querySelectorAll('.gallery-thumb').forEach((t,i) => t.classList.toggle('active', i === imgIdx));
+    };
+    window.setImg = function(i) {
+      imgIdx = i;
+      document.getElementById('mainImg').src = imgs[i];
+      document.querySelectorAll('.gallery-thumb').forEach((t,ti) => t.classList.toggle('active', ti === i));
+    };
+  }
+
+  if (staticProp) {
+    startRender(staticProp);
+  } else if (idParam) {
+    // Try Firestore for seller-submitted properties
+    document.getElementById('propertyContent').innerHTML = '<div style="padding:60px;text-align:center;color:var(--stone-400);">Loading…</div>';
+    (async () => {
+      try {
+        const snap = await db.collection('properties').doc(idParam).get();
+        if (snap.exists) {
+          const d = snap.data();
+          const fsProp = {
+            id: idParam,
+            title: d.title || 'Property',
+            price: d.price || 0,
+            status: d.purpose || 'for_sale',
+            type: d.type || 'house',
+            city: d.city || d.district || '',
+            district: d.district || '',
+            location: [d.tole, d.municipality].filter(Boolean).join(', ') || d.district || '',
+            address: [d.tole, d.municipality, d.district].filter(Boolean).join(', ') || d.district || '',
+            beds: d.beds || null, baths: d.baths || null,
+            area: d.area || 0, areaUnit: d.areaUnit || 'aana',
+            image: d.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80',
+            images: [d.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80'],
+            features: d.features || [],
+            description: d.description || '',
+            facing: d.facing || '', road: d.road || '',
+            featured: false, lat: 27.7172, lng: 85.3240,
+            agent: { name: d.sellerName || 'Seller', phone: d.sellerPhone || '+977-9800000000', image: 'https://randomuser.me/api/portraits/men/32.jpg' },
+          };
+          startRender(fsProp);
+        } else {
+          document.getElementById('propertyContent').innerHTML = `<div class="empty-state text-center" style="padding:80px 0;"><h2>Property not found</h2><a href="search.html" class="text-terra">Browse all properties</a></div>`;
+        }
+      } catch(_) {
+        document.getElementById('propertyContent').innerHTML = `<div class="empty-state text-center" style="padding:80px 0;"><h2>Could not load property</h2><a href="search.html" class="text-terra">Browse all properties</a></div>`;
+      }
+    })();
+  } else {
+    document.getElementById('propertyContent').innerHTML = `<div class="empty-state text-center" style="padding:80px 0;"><h2>Property not found</h2><a href="search.html" class="text-terra">Browse all properties</a></div>`;
+  }
+</script>
+</body>
+</html>
+

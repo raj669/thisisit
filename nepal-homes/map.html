@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map View — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body { overflow: hidden; }
+    #leafletMap { width: 100%; height: 100%; }
+    .map-prop-card { border: 1px solid var(--stone-100); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: var(--transition); margin-bottom: 10px; }
+    .map-prop-card:hover, .map-prop-card.active { border-color: var(--terra-400); box-shadow: var(--shadow); }
+    .map-prop-thumb { width: 100%; height: 110px; object-fit: cover; }
+    .map-prop-body { padding: 10px 12px; }
+    .map-sidebar-list { flex: 1; overflow-y: auto; padding: 12px; }
+    .leaflet-popup-content-wrapper { border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-lg) !important; padding: 0 !important; overflow: hidden; }
+    .leaflet-popup-content { margin: 0 !important; width: 240px !important; }
+    .leaflet-popup-tip-container { display: none; }
+    .price-marker { background: var(--terra-500); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 12px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.25); border: 2px solid white; cursor: pointer; transition: transform 0.15s; }
+    .price-marker:hover { transform: scale(1.08); }
+    .price-marker.active { background: var(--stone-900); transform: scale(1.1); }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="map-layout">
+  <!-- Sidebar -->
+  <div class="map-sidebar">
+    <div style="padding:14px;border-bottom:1px solid var(--stone-100);">
+      <h3 style="margin-bottom:10px;">Map View</h3>
+      <div class="pill-filters" id="mapFilters"></div>
+    </div>
+    <div class="map-sidebar-list" id="propList"></div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-main" id="mapMain">
+    <div id="leafletMap"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  let activeFilter = 'all';
+  let activeId = null;
+  let map, markersLayer = [];
+
+  // Init Leaflet map centered on Nepal
+  function initMap() {
+    map = L.map('leafletMap', {
+      center: [28.3949, 84.124],
+      zoom: 7,
+      minZoom: 6,
+      maxZoom: 16,
+      zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Restrict panning to Nepal's bounding box
+    map.setMaxBounds([[26.0, 79.5], [30.8, 88.5]]);
+
+    renderMarkers();
+  }
+
+  const filters = ['all','for_sale','for_rent','house','apartment','land'];
+  const filterContainer = document.getElementById('mapFilters');
+  filters.forEach(f => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (f === 'all' ? ' active' : '');
+    btn.textContent = f.replace('_',' ');
+    btn.style.textTransform = 'capitalize';
+    btn.onclick = () => {
+      activeFilter = f;
+      document.querySelectorAll('#mapFilters .pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      activeId = null;
+      renderSidebar();
+      renderMarkers();
+    };
+    filterContainer.appendChild(btn);
+  });
+
+  function getFiltered() {
+    if (activeFilter === 'all') return PROPERTIES;
+    return PROPERTIES.filter(p => p.status === activeFilter || p.type === activeFilter);
+  }
+
+  function renderSidebar() {
+    const list = getFiltered();
+    document.getElementById('propList').innerHTML = list.map(p => `
+      <div class="map-prop-card ${activeId === p.id ? 'active' : ''}" onclick="selectProperty(${p.id})" id="sidecard-${p.id}">
+        <img src="${p.image}" class="map-prop-thumb" alt="${p.title}" loading="lazy">
+        <div class="map-prop-body">
+          <div style="font-weight:600;font-size:0.85rem;color:var(--stone-900);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title}</div>
+          <div style="font-size:0.76rem;color:var(--stone-400);margin-bottom:5px;">📍 ${p.location}, ${p.city}</div>
+          <div style="font-weight:700;color:var(--terra-600);font-size:0.85rem;">${formatPrice(p.price,p.status)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderMarkers() {
+    // Remove existing markers
+    markersLayer.forEach(m => map.removeLayer(m));
+    markersLayer = [];
+
+    const list = getFiltered();
+    list.forEach(p => {
+      const icon = L.divIcon({
+        className: '',
+        html: `<div class="price-marker ${activeId===p.id?'active':''}" id="marker-${p.id}">${formatPrice(p.price,p.status)}</div>`,
+        iconAnchor: [0, 0],
+      });
+      const marker = L.marker([p.lat, p.lng], { icon })
+        .addTo(map)
+        .on('click', () => selectProperty(p.id));
+      markersLayer.push(marker);
+    });
+  }
+
+  function selectProperty(id) {
+    if (activeId === id) {
+      activeId = null;
+      map.closePopup();
+      renderSidebar();
+      renderMarkers();
+      return;
+    }
+    activeId = id;
+    const p = PROPERTIES.find(x => x.id === id);
+    if (!p) return;
+
+    renderSidebar();
+    renderMarkers();
+
+    // Scroll sidebar card into view
+    const card = document.getElementById('sidecard-' + id);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Show Leaflet popup
+    const popupHTML = `
+      <img src="${p.image}" style="width:100%;height:130px;object-fit:cover;" alt="${p.title}">
+      <div style="padding:14px;">
+        <h4 style="font-size:0.9rem;margin-bottom:4px;color:#2c1810;">${p.title}</h4>
+        <div style="font-size:0.75rem;color:#8b7355;margin-bottom:8px;">📍 ${p.address}</div>
+        <div style="display:flex;gap:10px;font-size:0.75rem;color:#6b5b47;margin-bottom:10px;">
+          ${p.beds ? `<span>🛏 ${p.beds} beds</span>` : ''}
+          ${p.baths ? `<span>🚿 ${p.baths} baths</span>` : ''}
+          <span>📐 ${p.area} ${p.areaUnit}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-weight:700;color:#c2714f;font-size:0.9rem;">${formatPrice(p.price,p.status)}</span>
+          <a href="property.html?id=${p.id}" style="background:#c2714f;color:white;padding:6px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;text-decoration:none;">View →</a>
+        </div>
+      </div>`;
+
+    L.popup({ maxWidth: 260, closeButton: true, className: '' })
+      .setLatLng([p.lat, p.lng])
+      .setContent(popupHTML)
+      .openOn(map);
+
+    map.setView([p.lat, p.lng], Math.max(map.getZoom(), 13), { animate: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    renderSidebar();
+  });
+</script>
+</body>
+</html>
+

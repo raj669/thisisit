@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Property — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .type-pick { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+    .type-pick-btn { padding: 20px; border: 2px solid var(--stone-200); border-radius: var(--radius-xl); text-align: center; cursor: pointer; transition: var(--transition); background: white; }
+    .type-pick-btn:hover { border-color: var(--terra-300); }
+    .type-pick-btn.active { border-color: var(--terra-500); background: var(--terra-50); }
+    .type-pick-btn .emoji { font-size: 2rem; margin-bottom: 6px; }
+    .status-pick { display: flex; gap: 12px; }
+    .status-btn { flex: 1; padding: 12px; border: 2px solid var(--stone-200); border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: var(--transition); background: none; font-size: 0.9rem; }
+    .status-btn.active { border-color: var(--terra-500); background: var(--terra-50); color: var(--terra-700); }
+    .feature-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .feature-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--stone-200); font-size: 0.8rem; cursor: pointer; transition: var(--transition); background: none; color: var(--stone-600); }
+    .feature-btn.active { background: var(--terra-500); color: white; border-color: var(--terra-500); }
+    .upload-zone { border: 2px dashed var(--stone-200); border-radius: var(--radius-xl); padding: 48px; text-align: center; cursor: pointer; transition: var(--transition); }
+    .upload-zone:hover { border-color: var(--terra-400); background: var(--terra-50); }
+    .success-screen { text-align: center; padding: 60px 20px; }
+    .success-icon { width: 80px; height: 80px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+<div class="container" style="max-width:720px;padding:32px 20px 60px;">
+  <h1 style="font-size:1.6rem;margin-bottom:4px;">List Your Property</h1>
+  <p class="text-muted text-sm mb-6">Fill in the details below to list your property on NepalHomes</p>
+
+  <!-- Steps -->
+  <div class="steps mb-6" id="stepsBar"></div>
+
+  <div class="card card-padded" id="stepContent"></div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;" id="stepNav">
+    <button class="btn btn-secondary" id="prevBtn" onclick="goPrev()">← Back</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="goNext()">Continue →</button>
+  </div>
+</div>
+<div id="footer"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  // Hide page until auth is confirmed
+  document.body.style.visibility = 'hidden';
+  requireAuth(function() { document.body.style.visibility = 'visible'; });
+
+  const STEPS = [
+    { label:'Property Type', emoji:'🏠' },
+    { label:'Location', emoji:'📍' },
+    { label:'Details', emoji:'📋' },
+    { label:'Photos', emoji:'📷' },
+    { label:'Review', emoji:'✅' },
+  ];
+  let step = 0;
+  const form = {
+    type:'', purpose:'', province:'', district:'', municipality:'', ward:'', tole:'', city:'',
+    title:'', price:'', area:'', areaUnit:'aana', beds:'', baths:'',
+    facing:'', road:'', description:'', features:[],
+  };
+
+  const PROVINCES = [
+    'Koshi Province','Madhesh Province','Bagmati Province',
+    'Gandaki Province','Lumbini Province','Karnali Province','Sudurpashchim Province',
+  ];
+
+  function renderSteps() {
+    document.getElementById('stepsBar').innerHTML = STEPS.map((s,i) => `
+      <div class="step-item">
+        <div class="step-circle ${i < step ? 'done' : i === step ? 'active' : ''}">${i < step ? '✓' : s.emoji}</div>
+        <span class="step-label ${i < step ? 'done' : i === step ? 'active' : ''}">${s.label}</span>
+        ${i < STEPS.length-1 ? `<div class="step-line ${i < step ? 'done' : ''}"></div>` : ''}
+      </div>`).join('');
+  }
+
+  const STEP_HTML = [
+    // Step 0
+    () => `
+      <h3 style="margin-bottom:16px;">What type of property?</h3>
+      <div class="type-pick mb-5">
+        ${[['house','🏠','House'],['apartment','🏢','Apartment'],['land','🌿','Land'],['commercial','🏪','Commercial']].map(([v,e,l]) => `
+          <button class="type-pick-btn ${form.type===v?'active':''}" onclick="pickType('${v}',this)">
+            <div class="emoji">${e}</div>
+            <div style="font-weight:600;color:var(--stone-800);">${l}</div>
+          </button>`).join('')}
+      </div>
+      <h4 style="font-size:0.9rem;margin-bottom:10px;">Listing Purpose</h4>
+      <div class="status-pick">
+        <button class="status-btn ${form.purpose==='for_sale'?'active':''}" onclick="pickStatus('for_sale',this)">For Sale</button>
+        <button class="status-btn ${form.purpose==='for_rent'?'active':''}" onclick="pickStatus('for_rent',this)">For Rent</button>
+      </div>`,
+    // Step 1
+    () => `
+      <h3 style="margin-bottom:16px;">Where is it located?</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Province</label>
+          <select class="form-select" onchange="form.province=this.value">
+            <option value="">Select Province</option>
+            ${PROVINCES.map(p=>`<option ${form.province===p?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">District</label>
+          <input type="text" class="form-input" value="${form.district}" placeholder="e.g. Kathmandu" oninput="form.district=this.value">
+        </div>
+        <div class="form-group"><label class="form-label">Municipality / VDC</label>
+          <input type="text" class="form-input" value="${form.municipality}" placeholder="e.g. Kathmandu Metropolitan" oninput="form.municipality=this.value">
+        </div>
+        <div class="form-group"><label class="form-label">Ward No.</label>
+          <input type="number" class="form-input" value="${form.ward}" placeholder="e.g. 4" min="1" max="35" oninput="form.ward=this.value">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Tole / Locality</label>
+        <input type="text" class="form-input" value="${form.tole}" placeholder="e.g. Baneshwor, New Road" oninput="form.tole=this.value">
+      </div>
+      <div class="form-group"><label class="form-label">City (optional)</label>
+        <select class="form-select" onchange="form.city=this.value">
+          <option value="">Select City</option>
+          ${CITIES.map(c=>`<option ${form.city===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>`,
+    // Step 2
+    () => `
+      <h3 style="margin-bottom:16px;">Property Details</h3>
+      <div class="form-group"><label class="form-label">Property Title</label>
+        <input type="text" class="form-input" value="${form.title}" placeholder="e.g. Modern Villa in Baneshwor" oninput="form.title=this.value">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label class="form-label">Price (Rs.)</label>
+          <input type="number" class="form-input" value="${form.price}" placeholder="0" oninput="form.price=this.value">
+        </div>
+        <div class="form-group"><label class="form-label">Area</label>
+          <div style="display:flex;gap:6px;">
+            <input type="number" class="form-input" value="${form.area}" placeholder="0" oninput="form.area=this.value" style="flex:1;">
+            <select class="form-select" style="width:110px;" onchange="form.areaUnit=this.value">
+              <option ${form.areaUnit==='aana'?'selected':''}>aana</option>
+              <option ${form.areaUnit==='ropani'?'selected':''}>ropani</option>
+              <option ${form.areaUnit==='dhur'?'selected':''}>dhur</option>
+              <option ${form.areaUnit==='bigha'?'selected':''}>bigha</option>
+              <option ${form.areaUnit==='sqft'?'selected':''}>sqft</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Bedrooms</label>
+          <select class="form-select" onchange="form.beds=this.value">
+            <option value="">Select</option>
+            ${[1,2,3,4,5,6].map(n=>`<option ${form.beds==n?'selected':''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Bathrooms</label>
+          <select class="form-select" onchange="form.baths=this.value">
+            <option value="">Select</option>
+            ${[1,2,3,4,5].map(n=>`<option ${form.baths==n?'selected':''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Facing</label>
+          <select class="form-select" onchange="form.facing=this.value">
+            <option value="">Select</option>
+            ${['East','West','North','South','NE','NW','SE','SW'].map(d=>`<option ${form.facing===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Road Width</label>
+          <input type="text" class="form-input" value="${form.road}" placeholder="e.g. 16 ft" oninput="form.road=this.value">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label" style="margin-bottom:10px;">Amenities</label>
+        <div class="feature-pick">
+          ${['Parking','Garden','Solar Power','Water Tank','Generator','Lift','Security','CCTV','Gym','Rooftop','Furnished','Hot Water'].map(f => `
+            <button class="feature-btn ${form.features.includes(f)?'active':''}" onclick="toggleFeature('${f}',this)">${f}</button>`).join('')}
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label>
+        <textarea class="form-textarea" rows="4" placeholder="Describe the property..." oninput="form.description=this.value">${form.description}</textarea>
+      </div>`,
+    // Step 3
+    () => `
+      <h3 style="margin-bottom:16px;">Upload Photos</h3>
+      <div class="upload-zone">
+        <div style="font-size:2.5rem;margin-bottom:10px;">📸</div>
+        <p style="font-weight:600;color:var(--stone-600);margin-bottom:4px;">Drag & drop photos here</p>
+        <p class="text-muted text-sm mb-3">or click to browse</p>
+        <p style="font-size:0.75rem;color:var(--stone-300);">JPG, PNG up to 5MB each · Max 15 photos</p>
+      </div>
+      <p class="text-muted text-xs mt-3 text-center">Good photos get 3× more inquiries. Add at least 5 photos.</p>`,
+    // Step 4
+    () => `
+      <h3 style="margin-bottom:16px;">Review Your Listing</h3>
+      <div style="background:var(--stone-50);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+        ${[
+          ['Type', `${form.type||'—'} · ${form.purpose==='for_sale'?'For Sale':form.purpose==='for_rent'?'For Rent':'—'}`],
+          ['Title', form.title||'—'],
+          ['Province', form.province||'—'],
+          ['District', form.district||'—'],
+          ['Municipality', form.municipality||'—'],
+          ['Ward / Tole', `${form.ward ? 'Ward '+form.ward : '—'} · ${form.tole||'—'}`],
+          ['Price', form.price ? `Rs. ${Number(form.price).toLocaleString()}` : '—'],
+          ['Area', form.area ? `${form.area} ${form.areaUnit}` : '—'],
+          ['Beds/Baths', form.beds ? `${form.beds} beds / ${form.baths||'?'} baths` : '—'],
+          ['Features', form.features.length > 0 ? form.features.join(', ') : 'None selected'],
+        ].map(([k,v]) => `
+          <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--stone-100);">
+            <span style="font-size:0.83rem;color:var(--stone-400);width:110px;flex-shrink:0;">${k}</span>
+            <span style="font-size:0.83rem;color:var(--stone-700);font-weight:600;">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div class="alert alert-amber">Your listing will be submitted for admin review. It will go live once approved.</div>`,
+  ];
+
+  function pickType(v, btn) {
+    form.type = v;
+    document.querySelectorAll('.type-pick-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function pickStatus(v, btn) {
+    form.purpose = v;
+    document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function toggleFeature(f, btn) {
+    const idx = form.features.indexOf(f);
+    if (idx === -1) form.features.push(f); else form.features.splice(idx,1);
+    btn.classList.toggle('active', form.features.includes(f));
+  }
+
+  function renderStep() {
+    renderSteps();
+    document.getElementById('stepContent').innerHTML = STEP_HTML[step]();
+    document.getElementById('prevBtn').disabled = step === 0;
+    document.getElementById('prevBtn').style.opacity = step === 0 ? '0.3' : '1';
+    const nextBtn = document.getElementById('nextBtn');
+    if (step === STEPS.length - 1) { nextBtn.textContent = '✓ Submit Listing'; nextBtn.className = 'btn btn-success'; }
+    else { nextBtn.textContent = 'Continue →'; nextBtn.className = 'btn btn-primary'; }
+  }
+
+  function goPrev() { if (step > 0) { step--; renderStep(); } }
+
+  function validateStep() {
+    if (step === 0) {
+      if (!form.type)    { alert('Please select a property type.'); return false; }
+      if (!form.purpose) { alert('Please select For Sale or For Rent.'); return false; }
+    }
+    if (step === 1) {
+      if (!form.district) { alert('Please enter the district.'); return false; }
+    }
+    if (step === 2) {
+      if (!form.title.trim()) { alert('Please enter a property title.'); return false; }
+      if (!form.price || Number(form.price) <= 0) { alert('Please enter a valid price.'); return false; }
+    }
+    return true;
+  }
+
+  async function goNext() {
+    if (!validateStep()) return;
+    if (step < STEPS.length - 1) { step++; renderStep(); }
+    else {
+      // Save listing to Firestore 'properties' collection with status: pending
+      const user = getCurrentUser();
+      if (user) {
+        try {
+          const newListing = {
+            title:        form.title || 'Untitled Property',
+            price:        Number(form.price) || 0,
+            type:         form.type || 'house',
+            purpose:      form.purpose || 'for_sale',
+            status:       'pending',
+            beds:         form.beds  ? Number(form.beds)  : null,
+            baths:        form.baths ? Number(form.baths) : null,
+            area:         Number(form.area) || 0,
+            areaUnit:     form.areaUnit || 'aana',
+            province:     form.province || '',
+            district:     form.district || '',
+            municipality: form.municipality || '',
+            ward:         form.ward || '',
+            tole:         form.tole || '',
+            city:         form.city || '',
+            description:  form.description || '',
+            features:     form.features,
+            facing:       form.facing || '',
+            road:         form.road || '',
+            image:        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80',
+            sellerId:     user.uid,
+            sellerName:   user.name,
+            sellerPhone:  user.phone || '',
+            createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
+          };
+          await db.collection('properties').add(newListing);
+        } catch(e) { console.error('Error saving listing:', e); }
+      }
+      document.getElementById('stepContent').innerHTML = `
+        <div class="success-screen">
+          <div class="success-icon">✅</div>
+          <h2 style="margin-bottom:8px;">Property Submitted!</h2>
+          <p class="text-muted text-sm mb-6">Your listing is under review. We'll notify you within 24 hours once it's live. Check your <a href="seller-dashboard.html" style="color:var(--terra-600);">Seller Dashboard</a> to track status.</p>
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <a href="seller-dashboard.html" class="btn btn-primary">View My Listings</a>
+            <button class="btn btn-secondary" onclick="location.reload()">Add Another</button>
+          </div>
+        </div>`;
+      document.getElementById('stepNav').classList.add('hidden');
+      document.getElementById('stepsBar').classList.add('hidden');
+    }
+  }
+
+  renderStep();
+</script>
+</body>
+</html>
+

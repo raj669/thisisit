@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .alert-modal { position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999; }
+    .alert-modal-box { background:white;border-radius:var(--radius-xl);padding:28px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+    .toast { position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:white;padding:12px 20px;border-radius:var(--radius);font-size:0.85rem;z-index:9999;opacity:0;transition:opacity 0.3s; }
+    .toast.show { opacity:1; }
+    .page-loading { position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;z-index:9998;font-size:0.9rem;color:var(--stone-400); }
+  </style>
+</head>
+<body>
+<div id="pageLoader" class="page-loading">Loading your dashboard…</div>
+<div id="navbar"></div>
+<div class="container page-content">
+  <div class="dash-layout">
+    <aside>
+      <div class="dash-sidebar-card card-padded text-center mb-3" id="sidebarProfile"></div>
+      <div class="dash-sidebar-card">
+        <button class="dash-nav-item active" onclick="showTab('saved',this)">❤️ Saved Properties</button>
+        <button class="dash-nav-item" onclick="showTab('tours',this)">📅 Scheduled Tours</button>
+        <button class="dash-nav-item" onclick="showTab('messages',this)">💬 Messages</button>
+        <button class="dash-nav-item" onclick="showTab('alerts',this)">🔔 Search Alerts</button>
+      </div>
+    </aside>
+    <main id="dashMain"><div style="padding:40px;text-align:center;color:var(--stone-400);">Loading…</div></main>
+  </div>
+</div>
+<div id="footer"></div>
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  async function refreshStats() {
+    const [saved, tours, alerts] = await Promise.all([getSaved(), getTours(), getAlerts()]);
+    const s = document.getElementById('statSaved');
+    const t = document.getElementById('statTours');
+    const a = document.getElementById('statAlerts');
+    if (s) s.textContent = saved.length;
+    if (t) t.textContent = tours.length;
+    if (a) a.textContent = alerts.length;
+  }
+
+  function renderSidebarProfile(user) {
+    const initials = ((user.firstName || '?')[0] + (user.lastName ? user.lastName[0] : '')).toUpperCase();
+    document.getElementById('sidebarProfile').innerHTML = `
+      <div class="avatar-circle">${initials}</div>
+      <div style="margin-top:12px;font-weight:700;color:var(--stone-900);">${user.name}</div>
+      <div class="text-xs text-muted" style="text-transform:capitalize;">${user.role} · ${user.email}</div>
+      <div class="stat-mini-grid">
+        <div class="stat-mini"><div class="stat-mini-val" id="statSaved">0</div><div class="stat-mini-lbl">Saved</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="statTours">0</div><div class="stat-mini-lbl">Tours</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="statAlerts">0</div><div class="stat-mini-lbl">Alerts</div></div>
+      </div>`;
+    refreshStats();
+  }
+
+  async function showTab(tab, btn) {
+    document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const main = document.getElementById('dashMain');
+    main.innerHTML = '<div style="padding:40px;text-align:center;color:var(--stone-400);">Loading…</div>';
+
+    if (tab === 'saved') {
+      const savedIds = await getSaved();
+      const savedProps = PROPERTIES.filter(p => savedIds.includes(p.id));
+      main.innerHTML = savedProps.length === 0 ? `
+        <h2 style="margin-bottom:20px;">Saved Properties</h2>
+        <div class="card card-padded text-center" style="padding:60px 20px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">❤️</div>
+          <p class="text-muted text-sm mb-4">No saved properties yet. Browse listings and click the heart icon to save them here.</p>
+          <a href="search.html" class="btn btn-primary btn-sm">Browse Properties</a>
+        </div>` : `
+        <h2 style="margin-bottom:20px;">Saved Properties</h2>
+        <div class="grid-2">
+          ${savedProps.map(p => `
+            <div class="card" style="overflow:hidden;">
+              <div style="position:relative;">
+                <img src="${p.image}" style="width:100%;height:160px;object-fit:cover;" alt="${p.title}">
+                <span class="badge ${p.status==='for_rent'?'badge-rent':'badge-sale'}" style="position:absolute;top:8px;left:8px;">${p.status==='for_rent'?'Rent':'Sale'}</span>
+                <button onclick="removeSaved(${p.id})" style="position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;" title="Remove">❤️</button>
+              </div>
+              <div style="padding:14px;">
+                <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">${p.title}</div>
+                <div style="font-size:0.78rem;color:var(--stone-400);margin-bottom:8px;">📍 ${p.location}, ${p.city}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-weight:700;color:var(--terra-600);">${formatPrice(p.price,p.status)}</span>
+                  <a href="property.html?id=${p.id}" class="btn btn-secondary btn-sm">View</a>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    else if (tab === 'tours') {
+      const tours = await getTours();
+      main.innerHTML = tours.length === 0 ? `
+        <h2 style="margin-bottom:20px;">Scheduled Tours</h2>
+        <div class="card card-padded text-center" style="padding:60px 20px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">📅</div>
+          <p class="text-muted text-sm mb-4">No tours scheduled yet. Open a property and click "Book Visit".</p>
+          <a href="search.html" class="btn btn-primary btn-sm">Browse Properties</a>
+        </div>` : `
+        <h2 style="margin-bottom:20px;">Scheduled Tours</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${tours.map(t => {
+            const prop = PROPERTIES.find(p => p.id === t.propertyId);
+            if (!prop) return '';
+            return `<div class="card" style="display:flex;gap:16px;padding:16px;align-items:center;">
+              <img src="${prop.image}" style="width:90px;height:72px;object-fit:cover;border-radius:var(--radius);flex-shrink:0;" alt="">
+              <div style="flex:1;">
+                <div style="display:flex;align-items:start;justify-content:space-between;gap:8px;">
+                  <div style="font-weight:600;font-size:0.9rem;">${prop.title}</div>
+                  <span class="tag ${t.status==='confirmed'?'tag-green':'tag-amber'}">${t.status}</span>
+                </div>
+                <div style="font-size:0.78rem;color:var(--stone-400);margin:3px 0 8px;">📍 ${prop.location}, ${prop.city}</div>
+                <div style="font-size:0.82rem;color:var(--stone-600);">📅 ${t.date} &nbsp; ⏰ ${t.time}</div>
+              </div>
+              <button onclick="doCancel(${t.id})" class="btn btn-danger btn-sm">Cancel</button>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    else if (tab === 'messages') {
+      main.innerHTML = `
+        <h2 style="margin-bottom:20px;">Messages</h2>
+        <div class="card card-padded text-center" style="padding:60px 20px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">💬</div>
+          <p class="text-muted text-sm">No messages yet. Contact an agent to get started.</p>
+        </div>`;
+    }
+
+    else if (tab === 'alerts') {
+      const alerts = await getAlerts();
+      main.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h2>Search Alerts</h2>
+          <button class="btn btn-primary btn-sm" onclick="showAlertModal()">+ New Alert</button>
+        </div>
+        ${alerts.length === 0 ? `
+          <div class="card card-padded text-center" style="padding:60px 20px;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🔔</div>
+            <p class="text-muted text-sm mb-4">No alerts yet. Create one to be notified of new listings.</p>
+          </div>` : `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${alerts.map(a => `
+              <div class="card" style="display:flex;align-items:center;gap:14px;padding:14px;">
+                <div style="width:40px;height:40px;background:var(--terra-100);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🔔</div>
+                <div style="flex:1;">
+                  <div style="font-weight:600;font-size:0.88rem;">${a.name}</div>
+                  <div style="font-size:0.76rem;color:var(--stone-400);">${a.query}</div>
+                  <div style="font-size:0.73rem;color:var(--stone-300);margin-top:2px;">${a.frequency} · Created ${a.createdAt.slice(0,10)}</div>
+                </div>
+                <span class="tag tag-stone">${a.frequency}</span>
+                <button onclick="doDeleteAlert(${a.id})" class="btn btn-ghost btn-sm" style="color:#dc2626;">✕</button>
+              </div>`).join('')}
+          </div>`}`;
+    }
+  }
+
+  async function removeSaved(id) {
+    await toggleSaved(id, null);
+    showToast('Removed from saved properties');
+    await showTab('saved', document.querySelector('.dash-nav-item.active'));
+    await refreshStats();
+  }
+
+  async function doCancel(id) {
+    if (!confirm('Cancel this tour?')) return;
+    await cancelTour(id);
+    showToast('Tour cancelled');
+    await showTab('tours', document.querySelector('.dash-nav-item.active'));
+    await refreshStats();
+  }
+
+  async function doDeleteAlert(id) {
+    await deleteAlert(id);
+    showToast('Alert deleted');
+    await showTab('alerts', document.querySelector('.dash-nav-item.active'));
+    await refreshStats();
+  }
+
+  function showAlertModal() {
+    const modal = document.createElement('div');
+    modal.className = 'alert-modal';
+    modal.id = 'alertModal';
+    modal.innerHTML = `
+      <div class="alert-modal-box">
+        <h3 style="margin-bottom:16px;">Create Search Alert</h3>
+        <div class="form-group"><label class="form-label">Alert Name</label><input type="text" id="alertName" class="form-input" placeholder="e.g. Kathmandu Apartments"></div>
+        <div class="form-group"><label class="form-label">Search Query</label><input type="text" id="alertQuery" class="form-input" placeholder="e.g. Apartment · Kathmandu · Under Rs.2Cr"></div>
+        <div class="form-group"><label class="form-label">Frequency</label>
+          <select id="alertFreq" class="form-select">
+            <option>Daily</option><option>Weekly</option><option>Monthly</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primary" style="flex:1;" onclick="saveAlert()">Create Alert</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('alertModal').remove()">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  }
+
+  async function saveAlert() {
+    const name = document.getElementById('alertName').value.trim();
+    const query = document.getElementById('alertQuery').value.trim();
+    const freq = document.getElementById('alertFreq').value;
+    if (!name || !query) { alert('Please fill in all fields.'); return; }
+    await addAlert(name, query, freq);
+    document.getElementById('alertModal').remove();
+    showToast('Alert created!');
+    await showTab('alerts', document.querySelector('.dash-nav-item.active'));
+    await refreshStats();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+  requireAuth(async function(user) {
+    if (user.role === 'seller') { location.href = 'seller-dashboard.html'; return; }
+    if (user.role === 'admin')  { location.href = 'admin.html'; return; }
+    document.getElementById('pageLoader').remove();
+    renderSidebarProfile(user);
+    await showTab('saved', null);
+    // Set active nav button
+    document.querySelector('.dash-nav-item').classList.add('active');
+  });
+</script>
+</body>
+</html>

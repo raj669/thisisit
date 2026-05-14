@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .toast { position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:white;padding:12px 20px;border-radius:var(--radius);font-size:0.85rem;z-index:9999;opacity:0;transition:opacity 0.3s; }
+    .toast.show { opacity:1; }
+    .page-loading { position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;z-index:9998;font-size:0.9rem;color:var(--stone-400); }
+  </style>
+</head>
+<body>
+<div id="pageLoader" class="page-loading">Loading your dashboard…</div>
+<div id="navbar"></div>
+<div class="container page-content">
+  <div class="dash-layout">
+    <aside>
+      <div class="dash-sidebar-card card-padded text-center mb-3" id="sidebarProfile"></div>
+      <div class="dash-sidebar-card">
+        <button class="dash-nav-item active" onclick="showTab('listings',this)">🏠 My Listings</button>
+        <button class="dash-nav-item" onclick="showTab('inquiries',this)">📞 Inquiries</button>
+        <button class="dash-nav-item" onclick="showTab('analytics',this)">📊 Analytics</button>
+      </div>
+    </aside>
+    <main id="dashMain"><div style="padding:40px;text-align:center;color:var(--stone-400);">Loading…</div></main>
+  </div>
+</div>
+<div id="footer"></div>
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  let _currentPageUser = null;
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Listings from Firestore properties collection (sellerId == user) ──
+  async function getMyListings() {
+    try {
+      const snap = await db.collection('properties')
+        .where('sellerId', '==', _currentPageUser.uid)
+        .get();
+      return snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  async function deleteMyListing(firestoreId) {
+    try {
+      await db.collection('properties').doc(firestoreId).delete();
+    } catch (_) {}
+  }
+
+  const inquiries = [
+    { name:'Bikash Thapa',  property: (PROPERTIES[0]||{}).title||'Property', date:'2026-05-13', phone:'+977-9801111111' },
+    { name:'Sunita Poudel', property: (PROPERTIES[4]||{}).title||'Property', date:'2026-05-12', phone:'+977-9812222222' },
+    { name:'Aakash Magar',  property: (PROPERTIES[0]||{}).title||'Property', date:'2026-05-11', phone:'+977-9823333333' },
+  ];
+
+  async function showTab(tab, btn) {
+    document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const main = document.getElementById('dashMain');
+
+    if (tab === 'listings') {
+      main.innerHTML = '<div style="padding:40px;text-align:center;color:var(--stone-400);">Loading…</div>';
+      const myListings = await getMyListings();
+      main.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h2>My Listings</h2>
+          <a href="list-property.html" class="btn btn-primary btn-sm">+ Add Property</a>
+        </div>
+        ${myListings.length === 0 ? `
+          <div class="card card-padded text-center" style="padding:60px 20px;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🏠</div>
+            <p class="text-muted text-sm mb-4">You haven't submitted any listings yet.</p>
+            <a href="list-property.html" class="btn btn-primary btn-sm">+ Add Property</a>
+          </div>` : `
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            ${myListings.map(p => {
+              const statusColor = p.status==='approved' ? '#15803d' : p.status==='rejected' ? '#7f1d1d' : '#854d0e';
+              const statusBg    = p.status==='approved' ? '#dcfce7' : p.status==='rejected' ? '#fee2e2' : '#fef9c3';
+              const loc = [p.tole, p.municipality, p.district, p.city].filter(Boolean).join(', ') || '—';
+              return `
+              <div class="card" style="overflow:hidden;" id="listing-${p.firestoreId}">
+                <div style="display:flex;gap:16px;padding:14px;">
+                  <img src="${p.image||'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&q=80'}" style="width:90px;height:72px;object-fit:cover;border-radius:var(--radius);flex-shrink:0;" alt="">
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+                      <div style="font-weight:600;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title||'Untitled'}</div>
+                      <span style="background:${statusBg};color:${statusColor};border-radius:20px;font-size:0.7rem;font-weight:700;padding:2px 8px;white-space:nowrap;text-transform:uppercase;">${p.status||'pending'}</span>
+                    </div>
+                    <div style="font-size:0.76rem;color:var(--stone-400);margin:3px 0 6px;">📍 ${loc}</div>
+                    <div style="font-weight:700;color:var(--terra-600);font-size:0.85rem;margin-bottom:8px;">Rs. ${Number(p.price||0).toLocaleString()}</div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                      ${p.status==='pending' ? '<span style="font-size:0.75rem;color:#92400e;">Awaiting admin review</span>' : ''}
+                      ${p.status==='rejected' ? '<span style="font-size:0.75rem;color:#991b1b;">Listing rejected — contact support</span>' : ''}
+                      <div style="margin-left:auto;display:flex;gap:8px;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteListing('${p.firestoreId}')">🗑 Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>`}`;
+    }
+
+    else if (tab === 'inquiries') {
+      main.innerHTML = `
+        <h2 style="margin-bottom:20px;">Buyer Inquiries</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${inquiries.map(inq => `
+            <div class="card" style="display:flex;align-items:center;gap:14px;padding:14px;">
+              <div style="width:38px;height:38px;background:var(--terra-100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--terra-600);font-size:1rem;flex-shrink:0;">${inq.name[0]}</div>
+              <div style="flex:1;">
+                <div style="font-weight:600;font-size:0.88rem;">${inq.name}</div>
+                <div style="font-size:0.76rem;color:var(--stone-400);">${inq.property}</div>
+                <div style="font-size:0.75rem;color:var(--stone-300);">${inq.date}</div>
+              </div>
+              <a href="tel:${inq.phone}" class="btn btn-secondary btn-sm">📞 Call</a>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    else if (tab === 'analytics') {
+      const myListings = await getMyListings();
+      main.innerHTML = `
+        <h2 style="margin-bottom:20px;">Listing Analytics</h2>
+        <div class="card card-padded mb-4">
+          <h3 style="font-size:0.9rem;margin-bottom:16px;">Property Views This Week</h3>
+          <canvas id="viewsChart" height="160"></canvas>
+        </div>
+        <div class="grid-4">
+          ${[['417','Total Views','↑ 23%'],['12','Inquiries','↑ 4 new'],[myListings.length.toString(),'Active Listings',''],['Rs.85L','Portfolio Value','Est.']].map(([v,l,s]) => `
+            <div class="kpi-card">
+              <div class="kpi-value">${v}</div>
+              <div class="kpi-label">${l}</div>
+              ${s ? `<span class="kpi-change up">${s}</span>` : ''}
+            </div>`).join('')}
+        </div>`;
+      setTimeout(() => {
+        new Chart(document.getElementById('viewsChart'), {
+          type: 'bar',
+          data: { labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ data:[34,52,41,67,73,89,61], backgroundColor:'#c2714f', borderRadius:4, label:'Views' }] },
+          options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ticks:{color:'#8b7355',font:{size:10}},grid:{color:'#f0ebe2'}}, x:{ticks:{color:'#8b7355',font:{size:10}},grid:{display:false}} } }
+        });
+      }, 50);
+    }
+  }
+
+  async function deleteListing(firestoreId) {
+    if (!confirm('Delete this listing? This cannot be undone.')) return;
+    await deleteMyListing(firestoreId);
+    const el = document.getElementById('listing-' + firestoreId);
+    if (el) el.remove();
+    showToast('Listing deleted');
+  }
+
+  function renderSidebarProfile(user, listingsCount) {
+    const initials = ((user.firstName || '?')[0] + (user.lastName ? user.lastName[0] : '')).toUpperCase();
+    document.getElementById('sidebarProfile').innerHTML = `
+      <div class="avatar-circle">${initials}</div>
+      <div style="margin-top:12px;font-weight:700;">${user.name}</div>
+      <div class="text-xs text-muted" style="text-transform:capitalize;">Property ${user.role}</div>
+      <div class="stat-mini-grid">
+        <div class="stat-mini"><div class="stat-mini-val">${listingsCount}</div><div class="stat-mini-lbl">Listed</div></div>
+        <div class="stat-mini"><div class="stat-mini-val">${inquiries.length}</div><div class="stat-mini-lbl">Inquiries</div></div>
+        <div class="stat-mini"><div class="stat-mini-val">85L</div><div class="stat-mini-lbl">Value</div></div>
+      </div>`;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+  requireAuth(async function(user) {
+    if (user.role === 'buyer') { location.href = 'buyer-dashboard.html'; return; }
+    if (user.role === 'admin') { location.href = 'admin.html'; return; }
+    _currentPageUser = user;
+    document.getElementById('pageLoader').remove();
+    const listings = await getMyListings();
+    renderSidebarProfile(user, listings.length);
+    await showTab('listings', null);
+    document.querySelector('.dash-nav-item').classList.add('active');
+  });
+</script>
+</body>
+</html>

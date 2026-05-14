@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NepalHomes — Find Your Perfect Home in Nepal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Hero */
+    .hero {
+      position: relative; min-height: 88vh; display: flex; align-items: center;
+      background: linear-gradient(135deg, #1a0f0a 0%, #3d3224 50%, #652f1e 100%);
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=1600&q=80') center/cover;
+      opacity: 0.25; mix-blend-mode: overlay;
+    }
+    .hero-content { position: relative; max-width: 680px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(194,113,79,0.2); border: 1px solid rgba(224,128,82,0.4);
+      color: #eda87c; font-size: 0.82rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .hero h1 { color: white; margin-bottom: 16px; font-size: 3rem; }
+    .hero h1 span { color: #e08052; }
+    .hero p { color: #c4b49a; font-size: 1.05rem; margin-bottom: 36px; line-height: 1.8; }
+    .search-box { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .search-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .search-tab { padding: 7px 20px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--stone-400); transition: var(--transition); }
+    .search-tab.active { background: var(--terra-500); color: white; border-radius: var(--radius-sm); }
+    .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .search-row .form-input { flex: 1; min-width: 200px; }
+    .search-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .search-chip { font-size: 0.76rem; color: var(--stone-500); background: var(--stone-100); padding: 4px 12px; border-radius: 20px; cursor: pointer; border: none; transition: var(--transition); }
+    .search-chip:hover { background: var(--terra-100); color: var(--terra-700); }
+
+    /* Stats band */
+    .stats-band { background: var(--terra-500); padding: 32px 0; }
+    .stats-band .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center; }
+    .stat-band-val { font-size: 2rem; font-weight: 700; color: white; }
+    .stat-band-lbl { color: rgba(255,255,255,0.75); font-size: 0.82rem; margin-top: 4px; }
+
+    /* Type cards */
+    .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .type-card { background: white; border-radius: var(--radius-xl); padding: 24px; text-align: center; cursor: pointer; border: 2px solid transparent; box-shadow: var(--shadow-sm); transition: all var(--transition); }
+    .type-card:hover { border-color: var(--terra-300); box-shadow: var(--shadow); }
+    .type-icon { width: 52px; height: 52px; background: var(--terra-100); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; transition: var(--transition); font-size: 1.5rem; }
+    .type-card:hover .type-icon { background: var(--terra-500); }
+
+    /* Why us */
+    .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .why-card { text-align: center; }
+    .why-icon { width: 56px; height: 56px; background: var(--terra-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .why-icon svg { width: 28px; height: 28px; fill: var(--terra-600); }
+
+    /* Testimonials */
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .testi-card { background: white; border-radius: var(--radius-xl); padding: 24px; border: 1px solid var(--stone-100); box-shadow: var(--shadow-sm); }
+    .stars { display: flex; gap: 2px; margin-bottom: 12px; }
+    .star { color: #fbbf24; font-size: 1rem; }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, var(--terra-600), var(--terra-800)); padding: 64px 0; text-align: center; color: white; }
+    .cta-section h2 { font-size: 2rem; margin-bottom: 12px; }
+    .cta-section p { color: rgba(255,255,255,0.8); margin-bottom: 32px; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-btn-white { background: white; color: var(--terra-700); font-weight: 700; padding: 12px 28px; border-radius: var(--radius); border: none; cursor: pointer; font-size: 0.95rem; transition: var(--transition); }
+    .cta-btn-white:hover { background: var(--stone-100); }
+    .cta-btn-outline { background: transparent; color: white; font-weight: 700; padding: 12px 28px; border-radius: var(--radius); border: 2px solid rgba(255,255,255,0.6); cursor: pointer; font-size: 0.95rem; transition: var(--transition); }
+    .cta-btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+    .section-bg { background: var(--stone-50); padding: 64px 0; }
+    .section-pad { padding: 64px 0; }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .stats-band .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .type-grid { grid-template-columns: repeat(2,1fr); }
+      .why-grid, .testi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">📍 Nepal's #1 Property Platform</div>
+      <h1>Find Your Perfect<br><span>Home in Nepal</span></h1>
+      <p>Discover thousands of properties across Kathmandu, Pokhara, and beyond. Buy, sell, or rent — we make it simple.</p>
+      <div class="search-box">
+        <div class="search-tabs">
+          <button class="search-tab active" onclick="setTab('buy',this)">Buy</button>
+          <button class="search-tab" onclick="setTab('rent',this)">Rent</button>
+        </div>
+        <div class="search-row">
+          <div class="input-wrap" style="flex:1;min-width:200px;">
+            <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <input type="text" id="searchInput" class="form-input icon-left" placeholder="Search location, city or property...">
+          </div>
+          <select id="typeSelect" class="form-select" style="width:140px;">
+            <option value="">All Types</option>
+            <option value="house">House</option>
+            <option value="apartment">Apartment</option>
+            <option value="land">Land</option>
+            <option value="commercial">Commercial</option>
+          </select>
+          <button class="btn btn-primary" onclick="doSearch()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            Search
+          </button>
+        </div>
+        <div class="search-chips" id="cityChips"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-band">
+  <div class="container">
+    <div class="stats-grid">
+      <div><div class="stat-band-val">12,500+</div><div class="stat-band-lbl">Active Listings</div></div>
+      <div><div class="stat-band-val">8,200+</div><div class="stat-band-lbl">Properties Sold</div></div>
+      <div><div class="stat-band-val">15,000+</div><div class="stat-band-lbl">Happy Clients</div></div>
+      <div><div class="stat-band-val">75+</div><div class="stat-band-lbl">Cities Covered</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Browse by Type -->
+<section class="section-bg">
+  <div class="container">
+    <div class="section-header"><div><h2 class="section-title">Browse by Type</h2></div></div>
+    <div class="type-grid">
+      <div class="type-card" onclick="location.href='search.html?type=house'">
+        <div class="type-icon">🏠</div>
+        <div style="font-weight:600;color:var(--stone-800);">Houses</div>
+      </div>
+      <div class="type-card" onclick="location.href='search.html?type=apartment'">
+        <div class="type-icon">🏢</div>
+        <div style="font-weight:600;color:var(--stone-800);">Apartments</div>
+      </div>
+      <div class="type-card" onclick="location.href='search.html?type=land'">
+        <div class="type-icon">🌿</div>
+        <div style="font-weight:600;color:var(--stone-800);">Land</div>
+      </div>
+      <div class="type-card" onclick="location.href='search.html?type=commercial'">
+        <div class="type-icon">🏪</div>
+        <div style="font-weight:600;color:var(--stone-800);">Commercial</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Properties -->
+<section class="section-pad">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Featured Properties</h2>
+        <p class="section-sub">Hand-picked premium listings across Nepal</p>
+      </div>
+      <a href="search.html" class="section-link">View All →</a>
+    </div>
+    <div class="grid-3" id="featuredGrid"></div>
+  </div>
+</section>
+
+<!-- Newly Approved Listings (from Firestore) -->
+<section class="section-bg" id="newListingsSection" style="display:none;">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">New Listings</h2>
+        <p class="section-sub">Recently approved properties added by sellers</p>
+      </div>
+      <a href="search.html" class="section-link">View All →</a>
+    </div>
+    <div class="grid-3" id="newListingsGrid"></div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="section-bg">
+  <div class="container">
+    <h2 class="section-title text-center mb-6">Why Choose NepalHomes?</h2>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg></div>
+        <h3 style="margin-bottom:8px;">Verified Listings</h3>
+        <p class="text-sm text-muted">Every property is verified by our team. No fake listings, guaranteed.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
+        <h3 style="margin-bottom:8px;">Market Intelligence</h3>
+        <p class="text-sm text-muted">Get real-time price insights and market trends to make informed decisions.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+        <h3 style="margin-bottom:8px;">Expert Support</h3>
+        <p class="text-sm text-muted">Our local real estate experts are available 7 days a week to help you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section-pad">
+  <div class="container">
+    <h2 class="section-title text-center mb-6">What Our Clients Say</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;margin-bottom:16px;">"Found my dream home in Lazimpat within 2 weeks. The map view feature was incredibly helpful!"</p>
+        <div style="font-weight:600;font-size:0.88rem;">Ramesh Bhattarai</div>
+        <div class="text-xs text-muted">Kathmandu</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;margin-bottom:16px;">"Sold my property at a great price. The platform made everything so easy and transparent."</p>
+        <div style="font-weight:600;font-size:0.88rem;">Sunita Rai</div>
+        <div class="text-xs text-muted">Pokhara</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;margin-bottom:16px;">"Best real estate platform in Nepal. Market insights helped me understand when to buy."</p>
+        <div style="font-weight:600;font-size:0.88rem;">Arjun Tamang</div>
+        <div class="text-xs text-muted">Lalitpur</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Ready to Find Your Dream Home?</h2>
+    <p>Join over 15,000 Nepalis who found their perfect property through NepalHomes.</p>
+    <div class="cta-btns">
+      <button class="cta-btn-white" onclick="location.href='search.html'">Browse Properties</button>
+      <button class="cta-btn-outline" onclick="location.href='list-property.html'">List Your Property</button>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  let currentStatus = 'for_sale';
+
+  function setTab(status, btn) {
+    currentStatus = status === 'buy' ? 'for_sale' : 'for_rent';
+    document.querySelectorAll('.search-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function doSearch() {
+    const q = document.getElementById('searchInput').value;
+    const type = document.getElementById('typeSelect').value;
+    location.href = `search.html?q=${encodeURIComponent(q)}&type=${type}&status=${currentStatus}`;
+  }
+
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+  // City chips
+  const chips = document.getElementById('cityChips');
+  CITIES.slice(0, 5).forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'search-chip';
+    btn.textContent = c;
+    btn.onclick = () => location.href = `search.html?q=${c}`;
+    chips.appendChild(btn);
+  });
+
+  // Featured static properties — render immediately
+  const featured = PROPERTIES.filter(p => p.featured);
+  document.getElementById('featuredGrid').innerHTML = featured.map(propertyCardHTML).join('');
+
+  // Load approved Firestore properties submitted by sellers
+  async function loadApprovedListings() {
+    try {
+      const snap = await db.collection('properties').where('status', '==', 'approved').get();
+      const approved = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      if (approved.length === 0) return;
+      // Convert Firestore property format to match propertyCardHTML expectations
+      const cards = approved.map(p => ({
+        id: p.firestoreId,
+        title: p.title || 'Property',
+        price: p.price || 0,
+        status: p.purpose || 'for_sale',
+        type: p.type || 'house',
+        city: p.city || p.district || '',
+        location: [p.tole, p.municipality].filter(Boolean).join(', ') || p.district || '',
+        address: [p.tole, p.municipality, p.district].filter(Boolean).join(', '),
+        beds: p.beds, baths: p.baths,
+        area: p.area || 0, areaUnit: p.areaUnit || 'aana',
+        image: p.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80',
+        images: [p.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80'],
+        featured: false, lat: 27.7172, lng: 85.3240,
+        features: p.features || [],
+        description: p.description || '',
+        agent: { name: p.sellerName || 'Agent', phone: p.sellerPhone || '+977-9800000000', image: 'https://randomuser.me/api/portraits/men/32.jpg' },
+      }));
+      document.getElementById('newListingsGrid').innerHTML = cards.map(propertyCardHTML).join('');
+      document.getElementById('newListingsSection').style.display = 'block';
+    } catch (_) {}
+  }
+
+  loadApprovedListings();
+
+  onAuthReady(async user => {
+    if (user) {
+      const saved = await getSaved();
+      saved.forEach(id => {
+        const btn = document.querySelector(`.property-card[data-id="${id}"] .save-btn`);
+        if (btn) { btn.classList.add('saved'); btn.title = 'Remove from saved'; }
+      });
+    }
+  });
+</script>
+</body>
+</html>
+

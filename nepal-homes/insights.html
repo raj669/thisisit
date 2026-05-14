@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Insights — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .chart-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); padding: 24px; }
+    .chart-title { font-size: 0.95rem; font-weight: 700; color: var(--stone-800); }
+    .chart-sub { font-size: 0.78rem; color: var(--stone-400); margin-top: 3px; margin-bottom: 20px; }
+    .loc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+    .loc-num { font-size: 0.75rem; font-weight: 700; color: var(--stone-400); width: 18px; }
+    .report-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    @media (max-width: 768px) { .report-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container page-content">
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:1.6rem;">Nepal Real Estate Market Insights</h1>
+    <p class="text-muted text-sm mt-2">Data updated as of May 2026 — Kathmandu Valley &amp; key cities</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-4 mb-6">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#fdf5f0;"><span style="font-size:1.2rem;">📈</span></div>
+      <div class="kpi-value">Rs. 1.85M</div>
+      <div class="kpi-label">Avg Price/Aana (KTM)</div>
+      <span class="kpi-change up">+8.2%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#fdf5f0;"><span style="font-size:1.2rem;">🏔️</span></div>
+      <div class="kpi-value">Rs. 1.38M</div>
+      <div class="kpi-label">Avg Price/Aana (PKR)</div>
+      <span class="kpi-change up">+5.6%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#fdf5f0;"><span style="font-size:1.2rem;">🏠</span></div>
+      <div class="kpi-value">12,540</div>
+      <div class="kpi-label">Active Listings</div>
+      <span class="kpi-change up">+12%</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#fdf5f0;"><span style="font-size:1.2rem;">⏱️</span></div>
+      <div class="kpi-value">42 days</div>
+      <div class="kpi-label">Avg Days on Market</div>
+      <span class="kpi-change down">-6 days</span>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid-2 mb-6">
+    <div class="chart-card">
+      <div class="chart-title">Average Price per Aana Trend</div>
+      <div class="chart-sub">Price in NPR (2026)</div>
+      <canvas id="priceChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Monthly Listings &amp; Sales</div>
+      <div class="chart-sub">New listings vs properties sold</div>
+      <canvas id="listingsChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="grid-2 mb-8">
+    <div class="chart-card">
+      <div class="chart-title">Listings by Property Type</div>
+      <div class="chart-sub">Distribution across categories</div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="width:180px;height:180px;flex-shrink:0;"><canvas id="pieChart"></canvas></div>
+        <div id="pieLegend" style="flex:1;"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top Locations by Listings</div>
+      <div class="chart-sub">Most active areas in Nepal</div>
+      <div id="topLocations"></div>
+    </div>
+  </div>
+
+  <!-- Market Summary -->
+  <div style="background:linear-gradient(135deg,var(--terra-50),var(--stone-50));border:1px solid var(--terra-200);border-radius:var(--radius-xl);padding:28px;">
+    <h2 style="font-size:1.1rem;margin-bottom:20px;">2026 Market Summary</h2>
+    <div class="report-grid">
+      <div>
+        <h3 style="font-size:0.9rem;margin-bottom:8px;">🏙️ Kathmandu Valley</h3>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;">Strong demand in Ring Road areas. Prices up 8–12% YoY. Baneshwor and Lazimpat remain premium zones. New developments in Budhanilkantha driving growth.</p>
+      </div>
+      <div>
+        <h3 style="font-size:0.9rem;margin-bottom:8px;">🏔️ Pokhara</h3>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;">Tourism recovery boosting commercial real estate. Lakeside land prices surged 15% post-international airport. Residential demand steady with expat community growing.</p>
+      </div>
+      <div>
+        <h3 style="font-size:0.9rem;margin-bottom:8px;">📊 Outlook</h3>
+        <p class="text-sm" style="color:var(--stone-600);line-height:1.8;">Infrastructure investments in highways and metro rail expected to drive value in corridor areas. Terai cities showing emerging demand with industrial growth.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  const priceData = { ktm:[1650000,1680000,1700000,1750000,1800000,1820000,1850000,1880000], pkr:[1200000,1220000,1250000,1280000,1300000,1320000,1350000,1380000], lal:[1400000,1420000,1450000,1480000,1500000,1520000,1540000,1560000] };
+  const listData = { new:[120,135,148,162,175,190,205,218], sold:[98,112,125,138,150,165,178,192] };
+  const typeData = [{ label:'House', count:2840, pct:42 },{ label:'Apartment', count:1890, pct:28 },{ label:'Land', count:1350, pct:20 },{ label:'Commercial', count:680, pct:10 }];
+  const topLocs = [{ loc:'Baneshwor', n:340, avg:'18L' },{ loc:'Lazimpat', n:280, avg:'22L' },{ loc:'Thamel', n:220, avg:'28L' },{ loc:'Patan', n:310, avg:'16L' },{ loc:'Lakeside', n:195, avg:'15L' }];
+  const COLORS = ['#c2714f','#4a7c59','#8b7355','#e08052'];
+  const chartDefaults = { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ font:{ size:11 }, color:'#8b7355' } } } };
+
+  // Price trend
+  new Chart(document.getElementById('priceChart'), {
+    type: 'line',
+    data: { labels: months, datasets: [
+      { label:'Kathmandu', data:priceData.ktm, borderColor:'#c2714f', backgroundColor:'rgba(194,113,79,0.08)', tension:0.4, pointRadius:0, borderWidth:2.5 },
+      { label:'Pokhara', data:priceData.pkr, borderColor:'#4a7c59', backgroundColor:'rgba(74,124,89,0.08)', tension:0.4, pointRadius:0, borderWidth:2.5 },
+      { label:'Lalitpur', data:priceData.lal, borderColor:'#8b7355', backgroundColor:'rgba(139,115,85,0.08)', tension:0.4, pointRadius:0, borderWidth:2.5 },
+    ]},
+    options: { ...chartDefaults, scales: { y:{ ticks:{ callback:v=>`${(v/1000000).toFixed(1)}M`, color:'#8b7355', font:{size:10} }, grid:{color:'#f0ebe2'} }, x:{ ticks:{color:'#8b7355',font:{size:10}}, grid:{display:false} } } }
+  });
+
+  // Listings
+  new Chart(document.getElementById('listingsChart'), {
+    type: 'bar',
+    data: { labels: months, datasets: [
+      { label:'New Listings', data:listData.new, backgroundColor:'#c2714f', borderRadius:4 },
+      { label:'Sold', data:listData.sold, backgroundColor:'#4a7c59', borderRadius:4 },
+    ]},
+    options: { ...chartDefaults, scales: { y:{ ticks:{color:'#8b7355',font:{size:10}}, grid:{color:'#f0ebe2'} }, x:{ ticks:{color:'#8b7355',font:{size:10}}, grid:{display:false} } } }
+  });
+
+  // Pie
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: { labels: typeData.map(d=>d.label), datasets:[{ data:typeData.map(d=>d.count), backgroundColor:COLORS, borderWidth:0 }] },
+    options: { ...chartDefaults, plugins:{ legend:{display:false} }, cutout:'55%' }
+  });
+  document.getElementById('pieLegend').innerHTML = typeData.map((d,i) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="width:12px;height:12px;border-radius:50%;background:${COLORS[i]};flex-shrink:0;"></div>
+      <span style="font-size:0.82rem;color:var(--stone-600);">${d.label}</span>
+      <span style="font-weight:700;font-size:0.85rem;margin-left:auto;">${d.pct}%</span>
+    </div>`).join('');
+
+  // Top locations
+  document.getElementById('topLocations').innerHTML = topLocs.map((l,i) => `
+    <div class="loc-row">
+      <span class="loc-num">${i+1}</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+          <span style="font-weight:600;color:var(--stone-800);">📍 ${l.loc}</span>
+          <span style="color:var(--stone-400);">${l.n} listings</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(l.n/340*100).toFixed(0)}%;"></div></div>
+      </div>
+      <span style="font-size:0.75rem;color:var(--stone-500);width:50px;text-align:right;">Rs.${l.avg}/ana</span>
+    </div>`).join('');
+</script>
+</body>
+</html>

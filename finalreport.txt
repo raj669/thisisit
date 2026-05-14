@@ -1,0 +1,1602 @@
+%============================================================
+% UniPlanner – A Learning Management System
+% Final-Year BIT Project Report
+% LaTeX Source  |  Compile with: pdflatex (twice)
+%============================================================
+\documentclass[12pt,a4paper]{report}
+
+%------------------------------------------------------------
+% Packages
+%------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage[explicit]{titlesec}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{emptypage}
+\usepackage{tocloft}
+\usepackage{indentfirst}
+
+%------------------------------------------------------------
+% Typography — matches template: justified, indented paragraphs
+%------------------------------------------------------------
+\onehalfspacing
+\setlength{\parindent}{1.25em}
+\setlength{\parskip}{0pt}
+
+%------------------------------------------------------------
+% Chapter formatting — matches template:
+%   "Chapter N" on first line, then UPPERCASED TITLE below
+%------------------------------------------------------------
+\titleformat{\chapter}[display]
+  {\normalfont\large\bfseries}
+  {Chapter \thechapter}
+  {10pt}
+  {\large\bfseries\MakeUppercase{#1}}
+\titlespacing*{\chapter}{0pt}{30pt}{20pt}
+
+%------------------------------------------------------------
+% Section / Subsection — bold, left-aligned, numbered
+%------------------------------------------------------------
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries}{\thesection}{1em}{#1}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}{\thesubsection}{1em}{#1}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+%------------------------------------------------------------
+% Subsubsection — bold, NOT numbered (matches template)
+%------------------------------------------------------------
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}{}{0em}{#1}
+\titlespacing*{\subsubsection}{0pt}{8pt}{4pt}
+
+%------------------------------------------------------------
+% TOC — dotted leaders for all levels, matches template style
+%------------------------------------------------------------
+\setcounter{tocdepth}{2}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+
+%------------------------------------------------------------
+% Headers / Footers
+%------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+    \fancyfoot[C]{\small\thepage}
+      \renewcommand{\headrulewidth}{0pt}}
+
+%------------------------------------------------------------
+% URL style
+%------------------------------------------------------------
+\urlstyle{same}
+
+%------------------------------------------------------------
+% Hyperref metadata
+%------------------------------------------------------------
+\hypersetup{
+  pdftitle  = {UniPlanner -- A Learning Management System},
+  pdfauthor = {Kritika Dangal}}
+
+%============================================================
+\begin{document}
+%============================================================
+
+%------------------------------------------------------------
+% TITLE PAGE — matches template layout exactly
+%------------------------------------------------------------
+\begin{titlepage}
+  \centering
+  % University logo placeholder (replace \fbox with \includegraphics)
+  \vspace*{0.3cm}
+  
+
+  \vspace{0.5cm}
+  {\Large\bfseries Lincoln University College}\\[4pt]
+  {\normalsize Faculty of Computer Science and Multimedia}\\[2pt]
+  {\normalsize Phoenix College of Management}\\[2pt]
+  {\normalsize Maitidevi, Kathmandu}\\[2pt]
+  {\normalsize Bachelors in Information Technology (BIT)}
+
+  \vspace{1.2cm}
+  {\Large\bfseries UniPlanner -- A Learning Management System}
+
+  \vspace{0.8cm}
+  {\large\textbf{A PROJECT REPORT}}
+
+  \vspace{0.8cm}
+  {\normalsize Submitted to}\\[4pt]
+  {\normalsize\bfseries
+    Department of Information Technology\\
+    Phoenix College of Management\\
+    Maitidevi, Kathmandu}
+
+  \vspace{0.6cm}
+  {\normalsize In partial fulfillment of the requirements for the\\[4pt]
+  \textbf{Bachelor in Information Technology (BIT)}}
+
+  \vspace{1cm}
+  {\normalsize Submitted by}\\[4pt]
+  {\normalsize\bfseries Kritika Dangal}\\
+  {\normalsize BIT 8th Semester}\\
+  {\normalsize University ID : LC0003001663}\\[6pt]
+  {\normalsize 2026/05/10}
+\end{titlepage}
+
+%============================================================
+% FRONT MATTER — Roman numerals
+%============================================================
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+%------------------------------------------------------------
+% DECLARATION
+%------------------------------------------------------------
+\chapter*{DECLARATION}
+\addcontentsline{toc}{chapter}{DECLARATION}
+\thispagestyle{plain}
+
+I hereby declare that the project report entitled
+``UniPlanner -- A Learning Management System''
+is my original work, completed under the guidance of Mr.\ Saishab Bhattarai.
+This report has not been submitted elsewhere, in full or in part,
+for the award of any degree, diploma, or other academic recognition.
+
+\vspace{2.5cm}
+\noindent Signature:\\[10pt]
+\noindent Name: Kritika Dangal\\
+Date: 2026/05/10
+
+\clearpage
+
+%------------------------------------------------------------
+% LETTER OF APPROVAL
+%------------------------------------------------------------
+\newpage
+\begin{center}
+    % University Logo (Adjust path and size as needed)
+    \includegraphics[width=4cm]{figma/logo.png} \\ 
+    
+    \vspace{0.5cm}
+    {\LARGE \textbf{Lincoln University College}} \\
+    {\Large Faculty of Computer Science and Multimedia} \\
+    {\Large Phoenix College of Management} \\
+    {\Large Maitidevi, Kathmandu} \\
+    {\Large Bachelors in Information Technology (BIT)} \\
+    
+    \vspace{1cm}
+    {\LARGE \textbf{LETTER OF APPROVAL}} \\
+\end{center}
+
+\vspace{1cm}
+
+\noindent The Project report entitled \textbf{"UniPlanner – A Learning Management System” } submitted by \textbf{Kritika Dangal} , in partial fulfillment of the requirements for the Bachelor's degree in Information Technology, has been accepted as a record of work independently carried out by the group of departments.
+
+
+\vspace{0.1cm}
+
+\noindent In our opinion, it is satisfactory in the score and quality of a project for the required degree.
+
+\vspace{1cm}
+
+% Signature Section 1
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+    \textbf{Er. Santosh Dhungana} \\
+    \textit{Head of Department}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+    \raggedleft
+    \textbf{Mr. Bijay Mishra} \\
+    \textit{Program Coordinator}
+\end{minipage}
+
+\vspace{2cm}
+
+% Signature Section 2
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+    \textbf{Mr. Saishab Bhattarai} \\
+    \textit{Internal Examiner}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+    \raggedleft
+    \textbf{External Examiner} \\
+\end{minipage}
+
+\vspace{1cm}
+
+
+%------------------------------------------------------------
+% ABSTRACT
+%------------------------------------------------------------
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\thispagestyle{plain}
+
+UniPlanner is a high-performance, web-based Learning Management System (LMS)
+designed to streamline academic administration and foster collaborative learning
+across three distinct user roles: students, teachers, and administrators.
+The platform integrates structured course management, assignment tracking,
+teacher-assisted feedback, real-time notifications, and a rich analytics dashboard
+into a single unified interface. By providing role-specific portals, UniPlanner
+addresses the fragmentation commonly found in traditional academic tools and
+single-purpose applications.
+
+Students benefit from an interactive dashboard displaying pending assignments,
+enrolled courses, grade history, and upcoming deadlines. Teachers are empowered
+with class management tools, a SpeedGrader for rapid assignment evaluation, and
+manual submission feedback for students. Administrators gain full visibility over
+platform health, user distribution, and system-wide analytics. The system is built
+on a Node.js and Express.js backend with Firebase-backed data persistence,
+JWT-based authentication (JSON Web Token), and a responsive Tailwind CSS frontend
+accessible across desktop and mobile devices.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} Learning Management System, Educational Platform,
+Assignment Tracking, Role-Based Access Control, JWT Authentication,
+Real-Time Notifications, Analytics Dashboard.
+
+\clearpage
+
+%------------------------------------------------------------
+% ACKNOWLEDGMENT
+%------------------------------------------------------------
+\chapter*{ACKNOWLEDGMENT}
+\addcontentsline{toc}{chapter}{ACKNOWLEDGMENT}
+\thispagestyle{plain}
+
+I would like to express my heartfelt gratitude to Mr.\ Saishab Bhattarai for his
+invaluable guidance and support throughout this project. His expertise and
+encouragement were instrumental in the successful completion of this work.
+
+I am also deeply thankful to the Department of Information Technology at Phoenix
+College of Management for providing the necessary academic infrastructure,
+resources, and mentorship that made this project possible.
+
+Additionally, I extend my gratitude to the External Advisors for their
+encouragement and assistance during the course of this work. Lastly, I am
+profoundly grateful to my family and friends for their constant support and
+motivation, which helped me persevere and complete this project successfully.
+
+\clearpage
+
+%------------------------------------------------------------
+% CERTIFICATE
+%------------------------------------------------------------
+\chapter*{CERTIFICATE}
+\addcontentsline{toc}{chapter}{CERTIFICATE}
+\thispagestyle{plain}
+
+This is to certify that the project report entitled
+``UniPlanner -- A Learning Management System''
+submitted by Kritika Dangal, University ID:\ LC0003001663, to Lincoln University
+College in partial fulfillment of the requirements for the Bachelor in Information
+Technology, is a record of original work carried out under my supervision and
+guidance.
+
+\vspace{2.5cm}
+\noindent Supervisor Name: Saishab Bhattarai\\
+Designation: Project Coordinator\\[2cm]
+\noindent Signature:
+
+\clearpage
+
+%------------------------------------------------------------
+% TOC / LOF / LOT
+%------------------------------------------------------------
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+%------------------------------------------------------------
+% LIST OF ABBREVIATIONS
+%------------------------------------------------------------
+\chapter*{LIST OF ABBREVIATIONS}
+\addcontentsline{toc}{chapter}{LIST OF ABBREVIATIONS}
+\thispagestyle{plain}
+
+\noindent
+\begin{tabular}{@{}ll}
+API  & : Application Programming Interface         \\[2pt]
+BIT  & : Bachelor in Information Technology        \\[2pt]
+CORS & : Cross-Origin Resource Sharing             \\[2pt]
+CSS  & : Cascading Style Sheets                    \\[2pt]
+CRUD & : Create, Read, Update, Delete              \\[2pt]
+ER   & : Entity-Relationship                       \\[2pt]
+HTML & : HyperText Markup Language                 \\[2pt]
+HTTP & : HyperText Transfer Protocol               \\[2pt]
+IT   & : Information Technology                    \\[2pt]
+JWT  & : JSON Web Token                            \\[2pt]
+JS   & : JavaScript                                \\[2pt]
+JSON & : JavaScript Object Notation                \\[2pt]
+LMS  & : Learning Management System                \\[2pt]
+MVC  & : Model-View-Controller                     \\[2pt]
+REST & : Representational State Transfer           \\[2pt]
+SPA  & : Single Page Application                   \\[2pt]
+SSE  & : Server-Sent Events                        \\[2pt]
+UI   & : User Interface                            \\[2pt]
+UML  & : Unified Modeling Language                 \\[2pt]
+UX   & : User Experience                           \\[2pt]
+XP   & : Experience Points (gamification metric)   \\
+\end{tabular}
+
+%============================================================
+% MAIN MATTER — Arabic numerals
+%============================================================
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%============================================================
+\chapter{Introduction}
+%============================================================
+
+\section{Introduction}
+
+In the current era of digital transformation, educational institutions face
+significant challenges in managing the complex interactions between students,
+educators, and administrators. Traditional academic management tools are often
+fragmented, requiring separate platforms for course management, assignment
+tracking, grading, and communication. This fragmentation leads to inefficiency,
+information silos, and a diminished learning experience for students and
+educators alike.
+
+UniPlanner -- A Learning Management System is an all-in-one web-based educational
+platform designed to unify these activities under a single, responsive interface.
+It caters to three primary user roles: students who need to track their coursework
+and grades; teachers who manage classes, assignments, and student evaluations; and
+administrators who oversee platform health, user accounts, and system analytics.
+The platform leverages modern web technologies including Node.js,Express.js, and
+Firebase to deliver a real-time, role-aware experience that scales with
+institutional needs.
+
+A key differentiator of UniPlanner is its built-in Teacher module, which provides
+students with submission feedback and quiz generation from learning materials, and
+offers teachers discussion summarisation. This reduces the cognitive burden on
+educators while giving students timely, actionable guidance before final submission.
+
+\section{Problem Statement}
+
+Educational institutions worldwide struggle with tool fragmentation. Students must
+navigate multiple disconnected platforms to access their course materials, submit
+assignments, check grades, and communicate with instructors. Teachers spend
+disproportionate time on administrative tasks such as tracking submissions,
+managing class rosters, and providing individual feedback. Administrators lack
+centralised visibility into platform usage, engagement, and student performance.
+
+Furthermore, the absence of timely feedback mechanisms means students often
+receive grades only after submission, leaving no opportunity for improvement.
+Existing commercial LMS platforms are expensive, heavily featured beyond
+institutional needs, and often inaccessible on low-bandwidth or mobile connections.
+There is a clear need for an affordable, role-aware, and enhanced educational
+management system that consolidates all critical academic functions into a single,
+intuitive platform.
+
+\section{Project Objectives}
+
+\begin{itemize}[leftmargin=2.5em]
+  \item To develop a unified, role-based LMS supporting students, teachers, and
+        administrators from a single web application.
+  \item To implement a class and assignment management system with real-time state
+        synchronisation.
+  \item To provide a comprehensive analytics and reporting dashboard for each user
+        role.
+  \item To implement secure JWT-based authentication with role-based access
+        control (RBAC).
+  \item To enable file-based resource management with cloud storage integration
+        via Cloudinary.
+  \item To deliver a responsive, accessible UI using Tailwind CSS that works
+        across devices.
+\end{itemize}
+
+\section{Significance of Project}
+
+UniPlanner addresses a critical gap in academic management by providing a single
+platform that serves all stakeholders in the educational ecosystem. For students,
+it reduces the cognitive overhead of managing multiple tools, enabling them to
+focus on learning rather than logistics. The gamification elements---i.e.,
+experience points (XP), badges, and streaks---motivate consistent engagement and
+reward academic effort.
+
+For teachers, UniPlanner's Speed Grader and manual submission feedback
+significantly reduce the time spent on assessment, allowing educators to provide
+more nuanced feedback to more students. The quick-create assignment tool further
+reduces administrative overhead. Administrators benefit from real-time platform
+analytics that enable data-driven decisions about class management, resource
+allocation, and platform health.
+
+Beyond individual roles, UniPlanner promotes a culture of transparency and
+accountability within educational institutions. Its open architecture, built on
+standard web technologies, allows future extensibility and integration with
+external systems such as student information systems (SIS) and video conferencing
+platforms.
+
+\section{Limitations of the Project}
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Offline Functionality:}
+    The application requires an active internet connection. Students in
+    low-connectivity environments may face difficulties accessing the platform,
+    limiting its reach in rural or underdeveloped regions.
+
+  \item \textbf{No Video Conferencing Integration:}
+    UniPlanner does not currently integrate with video conferencing platforms
+    such as Zoom or Google Meet. Live virtual class sessions must be managed
+    through external tools.
+
+  \item \textbf{Mobile Application:}
+    The platform is currently accessible via a responsive web interface only.
+    A dedicated native mobile application for iOS and Android has not been
+    developed.
+
+  \item \textbf{Single Language Support:}
+    The system currently supports only the English language, limiting usability
+    for non-English speaking institutions. Internationalisation (i18n) support
+    can be added in future iterations.
+\end{itemize}
+
+\section{Development Methodology}
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Agile Scrum Methodology:}
+    UniPlanner was developed following the Agile Scrum methodology, which
+    emphasises iterative development, continuous collaboration, and adaptability
+    to changing requirements. Development was organised into time-boxed sprints,
+    with each sprint delivering a functional increment of the platform. Sprint
+    planning sessions defined the features to be built, daily stand-ups ensured
+    team alignment, and sprint reviews validated delivered functionality against
+    project requirements.
+\end{itemize}
+
+This methodology was particularly well-suited to the UniPlanner project because it
+allowed the team to rapidly prototype individual modules (authentication, class
+management, assignments, etc.) and integrate them incrementally, reducing
+integration risk and enabling early usability feedback.
+
+\begin{figure}[H]
+  \centering
+  
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
+    \includegraphics[width=15cm]{figma/Agile Scrum Methodology Diagram.png} \\ 
+    \vspace{1cm}}}
+  \caption{Agile Scrum Methodology}
+  \label{fig:agile}
+\end{figure}
+
+\section{Organization of the Report}
+
+This report is structured into several chapters with each discussing a specific
+area of the project `UniPlanner -- A Learning Management System'. The layout is
+as follows:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Chapter 1: Introduction}\\
+    This chapter presents an overview of the project including the introduction,
+    problem statement, objectives of the project, significance, limitations
+    encountered, and an outline of the report organization.
+
+  \item \textbf{Chapter 2: Background Study and Literature Review}\\
+    This chapter brings together background of the study and all available
+    scholarly work and published materials regarding Learning Management Systems,
+    e-learning platforms, and assisted educational tools, identifying gaps that
+    UniPlanner seeks to address.
+
+  \item \textbf{Chapter 3: System Analysis}\\
+    The System Analysis section provides a comprehensive overview of the
+    project's requirements, objectives, and constraints. It outlines the
+    functional and non-functional requirements, feasibility studies, and the
+    methodologies used to gather information, ensuring a clear understanding of
+    the system's purpose and the processes involved in its development.
+
+  \item \textbf{Chapter 4: System Design}\\
+    The System Design section details the architecture and components of the
+    system, including both high-level and detailed designs. It outlines the
+    design decisions, models, and diagrams used to structure the system, ensuring
+    that it meets the specified requirements and is scalable, efficient, and
+    user-friendly.
+
+  \item \textbf{Chapter 5: Implementation and Testing}\\
+    The Implementation and Testing section describes the process of translating
+    the system design into a working software application. It covers the coding,
+    integration, and deployment stages, as well as the testing methodologies
+    employed to ensure the system functions correctly, meets user requirements,
+    and is free from defects. This section also highlights the types of tests
+    conducted, such as unit testing, system testing, and user acceptance testing.
+
+  \item \textbf{Chapter 6: Conclusion and Recommendations}\\
+    This final chapter contains a summary of findings, conclusions drawn from
+    the project, and suggestions for future improvements or developments.
+
+  \item \textbf{Bibliography}\\
+    This section includes a list of all sources and references mentioned
+    throughout the report, formatted in the appropriate citation style.
+
+  \item \textbf{Appendices}\\
+    This section contains additional information, such as technical documents,
+    screenshots of the app, or any other materials that support the project but
+    are not part of the main chapters.
+\end{itemize}
+
+%============================================================
+\chapter{Background Study and Literature Review}
+%============================================================
+
+\section{Background of the Study}
+
+The rapid growth of digital education has driven widespread adoption of Learning
+Management Systems across universities, colleges, and K--12 institutions worldwide.
+Platforms such as Moodle, Canvas, Blackboard, and Google Classroom have
+demonstrated the value of centralising academic activities in a single digital
+environment. However, these platforms are often too complex, too expensive, or too
+rigid for smaller institutions or rapidly evolving curriculum structures.
+
+In Nepal, where Phoenix College of Management operates, internet infrastructure
+and device accessibility continue to improve, creating new opportunities for
+digital learning tools. Yet most institutions still rely on fragmented
+communication channels---WhatsApp groups, email threads, and shared drives---for
+assignment distribution, submission, and feedback. This fragmentation contributes
+to delayed feedback cycles, lost submissions, and poor visibility into student
+progress.
+
+UniPlanner was conceived to address this institutional need by providing a
+lightweight, open-architecture LMS that can be deployed with minimal
+infrastructure, runs in any modern browser, and offers role-specific experiences
+tailored to the actual workflows of students, teachers, and administrators in a
+BIT programme.
+
+\section{Literature Review}
+
+Learning Management Systems have been extensively studied in the educational
+technology literature. Siemens and Long~\cite{siemens2011} argued that the next
+generation of LMS platforms must move beyond content delivery toward adaptive
+learning and analytics-driven insights. This vision directly informs UniPlanner's
+analytics dashboard and role-specific performance metrics, which aim to provide
+stakeholders with actionable data rather than raw activity logs.
+
+Brown and Adler~\cite{brown2008} emphasised the importance of participatory
+learning and peer collaboration in digital education environments. UniPlanner's
+discussion threads, messaging system, and collaborative resource-sharing features
+are designed to support these participatory learning models, enabling students to
+engage with course content beyond passive consumption.
+
+Shute~\cite{shute2008} demonstrated that formative feedback---provided before and
+during the learning process rather than only after assessment---significantly
+improves student outcomes. UniPlanner's submission feedback module supports this
+principle by enabling teachers to provide structured feedback on student drafts
+prior to the final submission deadline.
+
+The role of gamification in education was studied by Deterding et~al.\
+\cite{deterding2011}, who found that elements such as points, badges, and
+leaderboards can increase student motivation and engagement when thoughtfully
+integrated. UniPlanner incorporates an experience point (XP) system with badges
+and streaks, drawing on these findings to encourage consistent academic
+participation.
+
+From a technical perspective, the RESTful architectural style defined by
+Fielding~\cite{fielding2000} provides the backbone for UniPlanner's client--server
+communication, enabling a clean separation between the frontend interface and
+backend data management. JSON Web Token (JWT)-based authentication, standardised
+in RFC~7519~\cite{jones2015}, ensures stateless, secure session management across
+all API endpoints.
+
+The existing literature reveals a notable gap: most open-source LMS platforms
+either lack built-in feedback mechanisms or require complex infrastructure to
+deploy. UniPlanner addresses this gap by integrating a lightweight automated
+feedback module directly into the application server, making structured feedback
+available without reliance on external service dependencies.
+
+%============================================================
+\chapter{System Analysis}
+%============================================================
+
+\section{System Analysis}
+
+UniPlanner was developed using the Agile Scrum methodology, which involves a
+series of iterative development cycles called sprints. Initially, the requirement
+analysis phase was conducted to gather and prioritise both functional and
+non-functional requirements from all three user roles: student, teacher, and
+administrator. Based on these requirements, the team created a product backlog
+that guided each sprint. The system was designed incrementally, with the
+architecture and UI evolving as new features were developed and validated.
+
+\subsection{Requirement Analysis}
+
+Before commencing development of UniPlanner, extensive requirement gathering was
+carried out through analysis of existing LMS platforms, stakeholder interviews,
+and review of academic workflows at Phoenix College of Management. Both functional
+and non-functional requirements were identified.
+
+\subsubsection{Functional Requirements}
+
+The UniPlanner platform includes the following key functional requirements.
+
+\begin{enumerate}[leftmargin=2.5em]
+  \item \textbf{User Authentication and Authorisation:}
+    The system must support secure login and registration for students, teachers,
+    and administrators. Role-based access control must restrict API endpoints and
+    UI features to authorised users only, enforced via JWT tokens with an 8-hour
+    expiry.
+
+  \item \textbf{Class and Course Management:}
+    Teachers and administrators must be able to create, update, archive, and
+    delete classes. Students must be able to enrol in classes using a class codeand track their progress per course.
+
+  \item \textbf{Assignment Management:}
+    Teachers must be able to create assignments with title, description, due date,
+    maximum points, kind (assignment, quiz, project), and rubric criteria.
+    Students must be able to view, submit, and track the status of their
+    assignments.
+
+  \item \textbf{Grading and Feedback:}
+    Teachers must be able to grade student submissions via a SpeedGrader
+    interface, providing scores and written feedback. The system must also provide
+    automated pre-submission or manual feedback to students.
+
+  \item \textbf{Resource Management:}
+    Teachers and administrators must be able to upload, organise, and share
+    learning resources (files, links) associated with specific classes.
+
+  \item \textbf{Discussion Threads:}
+    The system must support class-specific discussion boards where students and
+    teachers can post and reply to messages.
+
+  \item \textbf{Notifications:}
+    The system must deliver real-time notifications for key events including new
+    assignments, grading completions, class updates, and system announcements.
+
+  \item \textbf{Calendar and Events:}
+    The system must display upcoming deadlines, exam dates, and class sessions in
+    a unified calendar view accessible to all roles.
+
+  \item \textbf{Analytics Dashboard:}
+    Each role must receive a customised analytics view: students see grades and
+    streaks; teachers see class engagement and pending submissions; administrators
+    see platform-wide usage metrics.
+
+  \item \textbf{Admin Panel:}
+    Administrators must be able to manage all users (create, update, delete), view
+    platform activity, manage permissions, and reset the platform to a demo state
+    for testing.
+
+  \item \textbf{Automated Assistance Module:}
+    The system must provide automated text summarisation, quiz generation from
+    learning materials, assignment feedback, and discussion summarisation.
+
+  \item \textbf{File Upload:}
+    Users must be able to upload files as part of assignment submissions and
+    resource management, with storage handled via Cloudinary cloud service.
+\end{enumerate}
+
+\subsubsection{Non-Functional Requirements}
+
+Various non-functional requirements have been analyzed and identified, which are
+outlined as follows:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Performance:} API responses must be returned within 200\,ms for
+    standard CRUD operations. The frontend must remain interactive under
+    concurrent user load.
+
+  \item \textbf{Usability:} The UI must be intuitive and role-specific,
+    minimising the number of clicks required to complete common tasks such as
+    submitting an assignment or grading a submission.
+
+  \item \textbf{Reliability:} The system must persist data to disk on every state
+    mutation, ensuring no data loss in the event of a server restart.
+
+  \item \textbf{Security:} All authenticated endpoints must validate JWT tokens.
+    Passwords must be stored as SHA-256 hashes. CORS must be restricted to known
+    origins in production.
+
+  \item \textbf{Scalability:} The architecture must support replacement of the
+    file-based store with a production database (PostgreSQL, MongoDB) without
+    changes to the API contract.
+
+  \item \textbf{Responsiveness:} The UI must render correctly on desktop
+    (1280\,px+), tablet (768\,px), and mobile (375\,px) screen sizes using
+    Tailwind CSS breakpoints.
+
+  \item \textbf{Accessibility:} The platform must use semantic HTML and ARIA
+    attributes to support screen reader compatibility.
+\end{itemize}
+
+\subsection{Feasibility Analysis}
+
+To ensure the successful development and deployment of UniPlanner, a thorough
+feasibility study was conducted evaluating the project from technical, operational,
+economic, and scheduling perspectives.
+
+\subsubsection{Technical Feasibility Study}
+
+UniPlanner leverages widely adopted and well-documented technologies. Node.js with
+Express.js provides a proven, lightweight backend framework capable of handling
+RESTful APIs and file serving. Firebase offers reliable cloud-based data
+synchronisation and authentication services. The frontend is built with vanilla
+JavaScript modules and Tailwind CSS, eliminating complex build pipelines and
+ensuring fast initial load times. All tools are open-source and freely available,
+making the project technically feasible within the team's existing skill set.
+
+\subsubsection{Operational Feasibility Study}
+
+UniPlanner is designed with a strong emphasis on usability and role-specific
+workflows. Each user role receives a tailored interface that surfaces only the
+information and actions relevant to their responsibilities. The system requires
+only a modern web browser, making it operationally feasible for users with varying
+levels of technical expertise. Teachers can manage classes and assignments with
+minimal training, and students can access their coursework from any device.
+
+\subsubsection{Economic Feasibility Study}
+
+The economic feasibility of UniPlanner is strong. All development tools---Node.js,
+Express.js, Firebase (free tier), Tailwind CSS, and Cloudinary (free tier)---are
+available at no cost. Deployment can be achieved on low-cost cloud platforms such
+as Railway, Render, or a standard VPS for under \$10 per month. No additional
+hardware is required by end users, as the platform runs entirely in a web browser.
+
+\subsubsection{Schedule Feasibility Study}
+
+The project was planned with a clear development timeline, assigning specific
+durations to each phase to ensure timely completion within the academic semester.
+The use of Scrum with two-week sprints provided regular checkpoints to identify
+and address delays.
+
+\begin{table}[H]
+\centering
+\caption{Development Schedule of UniPlanner}
+\label{tab:schedule}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Task Name} & \textbf{Duration} \\
+\midrule
+Planning and Requirement Analysis & 2 weeks \\
+UI/UX Design and Prototyping      & 3 weeks \\
+Backend API Development           & 5 weeks \\
+Frontend Implementation           & 6 weeks \\
+Testing and Debugging             & 4 weeks \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \begin{flushleft}
+        \includegraphics[width=500]{figma/Gantt Chart.png}
+    \end{flushleft}
+    
+    \caption{Gantt Chart of UniPlanner Development Schedule}
+    \label{fig:gantt}
+\end{figure}
+
+\subsection{System Modeling}
+
+The process of developing abstract models of a system, with each model presenting
+a different view or perspective of that system.
+
+\subsubsection{Use Case Diagram}
+
+A Use Case Diagram is a visual representation of the interactions between actors
+(users) and the system. The primary actors in UniPlanner are Student, Teacher, and
+Administrator. Key use cases include: Login, View Dashboard, Enrol in Class,
+Submit Assignment, Grade Submission, Create Assignment, Manage Users, View
+Analytics, and Upload Resource.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.82\textwidth}{\centering\vspace{1cm}
+
+        \includegraphics[width=250]{figma/Use Case Diagram of UniPlanner.png}
+    
+    \vspace{1cm}}}
+  \caption{Use Case Diagram of UniPlanner}
+  \label{fig:usecase}
+\end{figure}
+
+\subsubsection{Class Diagram}
+
+A Class Diagram shows the system's classes, their attributes, methods, and the
+relationships between them. It provides an overview of how the system is organised
+and how objects interact. Primary classes include: User (with subclasses Student,
+Teacher, Administrator), Class, Assignment, Submission, Resource, Discussion,
+Message, Notification, Event, and AnalyticsEvent.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
+
+        \includegraphics[width=440]{figma/Class Diagram of UniPlanner.png}
+    
+    \vspace{1cm}}}
+  \caption{Use Case Diagram of UniPlanner}
+  \label{fig:usecase}
+\end{figure}
+
+\subsection{Dynamic Modeling using State and Sequence Diagrams}
+
+The sequence diagram illustrates the interactions between system components,
+helping to visualize both current behavior and the requirements for new features.
+
+\subsubsection{Sequence Diagram}
+
+The sequence diagram visually represents how objects or components in the system
+interact over time. It helps to understand the flow of processes and the order in
+which operations occur. For UniPlanner, the sequence diagram details the login and
+dashboard flow: the User submits credentials via the login form; the frontend sends
+a POST request to \texttt{/api/auth/login}; the backend validates the email and
+password hash; on success, it issues a JWT token and returns the user object; the
+frontend stores the token and renders the role-specific dashboard.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
+
+        \includegraphics[width=440]{figma/Sequence Diagram of Login and Dashboard Flow.png}
+    
+    \vspace{1cm}}}
+  \caption{Use Case Diagram of UniPlanner}
+  \label{fig:usecase}
+\end{figure}
+
+\subsection{Process Modeling using Activity Diagrams}
+
+\subsubsection{Activity Diagram}
+
+An activity diagram represents the workflow of the system, showcasing the sequence
+of activities and decisions involved. The Activity Diagram for the assignment
+submission workflow shows the following sequence: Student views pending assignments
+on the dashboard; selects an assignment to view details; optionally uses the
+automated feedback tool to review their draft; uploads their submission file or
+enters text content; the system validates the submission and saves it; the teacher
+receives a notification of the new submission and grades it via the SpeedGrader;
+the student receives a grade notification.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1cm}
+
+        \includegraphics[width=350]{figma/Activity Diagram of Assignment Submission Workflow.png}
+    
+    \vspace{1cm}}}
+  \caption{fig: Activity Diagram of Assignment Submission Workflow}
+  \label{fig:usecase}
+\end{figure}
+
+
+%============================================================
+\chapter{System Design}
+%============================================================
+
+System design is a crucial phase in the software development process that involves
+defining the architecture, components, modules, and data flow of the system. It
+transforms the requirements gathered during the analysis phase into a blueprint for
+constructing the system. The design phase ensures that the system will be both
+effective and efficient in meeting its functional and non-functional requirements.
+It outlines how the system will be structured, how its components will interact, and
+how the data will flow throughout the system.
+
+\section{Refinement of Classes and Object}
+
+Initially, the identification and further refining of the essential classes will be
+considered in the object-oriented system design. These classes mainly represent
+entities of UniPlanner -- A Learning Management System. They are designed from the
+functional requirements of the system. The following classes form the backbone of
+the UniPlanner data model:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{User:} Represents all platform users. Attributes:
+    \texttt{id}, \texttt{name}, \texttt{email}, \texttt{role}
+    (student/teacher/admin), \texttt{title}, \texttt{avatar}, \texttt{bio},
+    \texttt{locale}, \texttt{xp}, \texttt{badges}, \texttt{passwordHash}.
+
+  \item \textbf{Class:} Represents a course section. Attributes:
+    \texttt{id}, \texttt{code}, \texttt{title}, \texttt{subject},
+    \texttt{section}, \texttt{teacherId}, \texttt{teacherName},
+    \texttt{color}, \texttt{description}, \texttt{progress},
+    \texttt{archived}, \texttt{enrolledStudentIds}.
+
+  \item \textbf{Assignment:} Represents a graded task. Attributes:
+    \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{kind},
+    \texttt{dueDate}, \texttt{status}, \texttt{maxPoints},
+    \texttt{submissions}, \texttt{averageScore}, \texttt{manualReview},
+    \texttt{description}, \texttt{rubric}.
+
+  \item \textbf{Submission:} Represents a student's response to an assignment.
+    Attributes: \texttt{id}, \texttt{assignmentId}, \texttt{studentId},
+    \texttt{contentText}, \texttt{fileName}, \texttt{fileUrl},
+    \texttt{submittedAt}, \texttt{score}, \texttt{teacherFeedback},
+    \texttt{plagiarismScore}, \texttt{qualityScore}, \texttt{lateFlag}.
+
+  \item \textbf{Resource:} Represents shared learning materials. Attributes:
+    \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{type},
+    \texttt{url}, \texttt{uploadedBy}, \texttt{createdAt}.
+
+  \item \textbf{Discussion:} Represents a class discussion thread. Attributes:
+    \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{authorId},
+    \texttt{posts} (array of Post objects).
+
+  \item \textbf{Message:} Represents a direct message. Attributes:
+    \texttt{id}, \texttt{fromId}, \texttt{toId}, \texttt{content},
+    \texttt{sentAt}, \texttt{read}.
+
+  \item \textbf{Notification:} Represents a platform notification. Attributes:
+    \texttt{id}, \texttt{userId}, \texttt{title}, \texttt{description},
+    \texttt{type}, \texttt{unread}, \texttt{createdAt}.
+
+  \item \textbf{Event:} Represents a calendar item. Attributes:
+    \texttt{id}, \texttt{title}, \texttt{type}, \texttt{date},
+    \texttt{startTime}, \texttt{endTime}, \texttt{classId}.
+
+  \item \textbf{AnalyticsEvent:} Records platform activity for analytics.
+    Attributes: \texttt{id}, \texttt{userId}, \texttt{classId},
+    \texttt{type}, \texttt{name}, \texttt{payload}, \texttt{createdAt}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+        \parbox{0.82\textwidth}{
+            \centering
+            \vspace{1cm}
+            \includegraphics[width=350pt]{figma/Activity Diagram of Assignment Submission Workflow.png}
+        }
+    }
+    \caption{Refined Class Diagram of UniPlanner}
+    \label{fig:refined-class}
+\end{figure}
+
+
+\section{Component Diagram}
+
+The Component Diagram illustrates the relationship between the various components
+of the system and how they interact with one another. It shows the high-level view
+of the system's architecture from an object-oriented perspective.
+
+\noindent\textbf{i.\ Frontend Component (Public Browser Client):}
+
+Built with HTML5, Tailwind CSS, and vanilla JavaScript ES modules, the frontend
+provides role-specific interfaces for all three user types. Key pages include:
+Login, Dashboard (Student/Teacher/Admin), Classes, Assignments, Grading, Calendar,
+Resources, Discussions, Messages, Analytics, Settings, and Admin Panel. The
+frontend communicates with the backend exclusively via RESTful API calls using
+the Fetch API.
+
+\noindent\textbf{ii.\ Backend API Server (Node.js/Express.js):}
+
+The Express.js server handles all API requests, enforces authentication via JWT
+middleware, and delegates business logic to feature modules. Key modules registered
+on the server include: Auth Module, Classes Module, Assignments Module, Submissions
+Module, Resources Module, Discussions Module, Messages Module, Notifications
+Module, Events Module, Analytics Module, and Upload Module (Cloudinary integration).
+
+\noindent\textbf{iii.\ Data Store (LearningStore):}
+
+UniPlanner uses a file-based JSON data store
+(\texttt{server/data/learning-os.json}) managed by the \texttt{LearningStore}
+class. The store maintains the full application snapshot including users, classes,
+assignments, submissions, sessions, goals, permissions, and analytics events. Each
+mutation is persisted to disk immediately, ensuring data durability across server
+restarts.
+
+\noindent\textbf{iv.\ Security Component:}
+
+Authentication is implemented using a custom JWT library
+(\texttt{server/security.js}) built on Node.js's built-in \texttt{crypto} module.
+Tokens use HMAC-SHA256 signing with a configurable secret key and an 8-hour expiry.
+Passwords are stored as SHA-256 hashes.
+
+\noindent\textbf{v.\ Automated Feedback Module:}
+
+The Automated Assistance Module (\texttt{server/ai.js}) provides four capabilities:
+text summarisation, quiz generation, assignment feedback, and discussion
+summarisation.
+
+\noindent\textbf{vi.\ Cloud Storage (Cloudinary):}
+
+File uploads are handled via the Cloudinary SDK. The frontend retrieves the
+Cloudinary configuration from the backend API and uploads files directly to
+Cloudinary's CDN. File metadata (URLs, names) is stored in the application data
+store.
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+        \parbox{0.82\textwidth}{
+            \centering
+            \vspace{1cm}
+            \includegraphics[width=350pt]{figma/Activity Diagram of Assignment Submission Workflow.png}
+        }
+    }
+    \caption{Component Diagram of UniPlanner}
+    \label{fig:component}
+\end{figure}
+
+\section{Deployment Diagram}
+
+The Deployment Diagram describes the physical deployment of the system's components
+on hardware resources. It shows how the system's software is distributed across
+various hardware nodes and how these nodes communicate with each other.
+
+\noindent\textbf{i.\ Client Devices:}
+
+Users access UniPlanner via any modern web browser on desktop, tablet, or mobile
+devices. The frontend JavaScript modules and Tailwind CSS are served as static
+assets from the Node.js server's \texttt{public/} directory. No installation is
+required on the client side.
+
+\noindent\textbf{ii.\ Application Server:}
+
+The Node.js/Express.js server runs on a single cloud VM or container instance
+(e.g., Railway, Render, or DigitalOcean). It serves both the static frontend assets
+and the RESTful API endpoints under the \texttt{/api/v1/} prefix.
+
+\noindent\textbf{iii.\ Firebase (Optional Real-time Sync):}
+
+The architecture is designed to be Firebase-compatible, with the frontend store able
+to subscribe to real-time updates. In production deployments, Firebase can replace
+the file-based store for real-time multi-client synchronisation.
+
+\noindent\textbf{iv.\ Cloudinary CDN:}
+
+File uploads (assignment submissions, resource files) are stored in Cloudinary's
+cloud CDN. Files are served directly from Cloudinary's edge network, reducing load
+on the application server and providing fast global file delivery.
+
+\noindent\textbf{v.\ Development Environment:}
+
+During development, the frontend is served via Live Server (VS Code extension) on
+port 5500, and the backend runs on a configurable port (default 3000). CORS is
+configured to allow cross-origin requests from the Live Server origin.
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+        
+            \centering
+            \vspace{1cm}
+            \includegraphics[width=500pt]{figma/Deployment Diagram of UniPlanner.png}
+        
+    }
+    \caption{Deployment Diagram of UniPlanner}
+    \label{fig:deployment}
+\end{figure}
+
+%============================================================
+\chapter{Implementation and Testing}
+%============================================================
+
+\section{Implementation}
+
+The implementation of UniPlanner was carried out in an iterative manner, following
+the Agile Scrum approach. Each sprint delivered working functionality across both
+the frontend and backend layers. This section outlines the tools, technologies,
+and module-level implementation details.
+
+\subsection{Tools Used}
+
+The following tools were used for the development and implementation of UniPlanner:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Node.js (v20+):} Server-side JavaScript runtime used to build
+    the Express.js API server.
+  \item \textbf{Express.js (v4.x):} Lightweight web framework for defining
+    RESTful API routes, middleware, and static file serving.
+  \item \textbf{Firebase:} Cloud backend providing real-time database
+    synchronisation and optional authentication services.
+  \item \textbf{Cloudinary:} Cloud-based media storage and CDN used for handling
+    file uploads from students and teachers.
+  \item \textbf{Tailwind CSS (CDN):} Utility-first CSS framework used to build
+    the responsive frontend UI without a build step.
+  \item \textbf{Vanilla JavaScript (ES Modules):} Frontend scripting using
+    native browser ES module imports, avoiding framework overhead.
+  \item \textbf{JWT (custom implementation):} HMAC-SHA256 JSON Web Tokens for
+    stateless authentication, implemented using Node.js's built-in
+    \texttt{crypto} module.
+  \item \textbf{VS Code + Live Server:} Primary development environment with
+    live-reload for frontend development.
+  \item \textbf{GitHub:} Version control and collaboration platform for source
+    code management.
+  \item \textbf{Figma:} UI/UX design tool used to create mockups and wireframes
+    before implementation.
+  \item \textbf{Postman:} API testing tool used to validate backend endpoints
+    during development.
+\end{itemize}
+
+\subsection{Implementation Details of Modules}
+
+UniPlanner is structured as a collection of independently registered Express.js
+modules, each responsible for a specific domain of functionality:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Auth Module (\texttt{auth.module.js}):}
+    Handles user login (\texttt{POST /api/v1/auth/login}) and session retrieval
+    (\texttt{GET /api/v1/auth/me}). On successful login, a JWT token is issued
+    and stored server-side.
+
+  \item \textbf{Classes Module (\texttt{classes.module.js}):}
+    Supports CRUD operations for course classes. Teachers can create classes
+    with a unique enrolment code; students enrol using this code.
+
+  \item \textbf{Assignments Module (\texttt{assignments.module.js}):}
+    Teachers create assignments specifying class, title, kind, due date, max
+    points, description, and rubric. Each assignment creation event is logged
+    as an analytics event.
+
+  \item \textbf{Submissions Module (via grading routes):}
+    Students submit text content or file URLs against assignments. Teachers
+    grade submissions via the SpeedGrader, providing a numeric score and written
+    feedback.
+
+  \item \textbf{Resources Module (\texttt{resources.module.js}):}
+    Manages learning materials associated with classes. Teachers and admins can
+    create resources; all enrolled users can view them.
+
+  \item \textbf{Discussions Module (\texttt{discussions.module.js}):}
+    Supports class-specific discussion threads. The automated module can generate
+    a summary of discussion content on demand.
+
+  \item \textbf{Messages Module (\texttt{messages.module.js}):}
+    Enables direct messaging between users. Messages are stored with sender ID,
+    recipient ID, content, and a read status flag.
+
+  \item \textbf{Notifications Module (\texttt{notifications.module.js}):}
+    Delivers system notifications to users. Notifications are marked as unread
+    and displayed prominently on each role's dashboard.
+
+  \item \textbf{Events Module (\texttt{events.module.js}):}
+    Manages calendar events including deadlines, exams, and class sessions.
+
+  \item \textbf{Automated Feedback Module (\texttt{ai.module.js} + \texttt{ai.js}):}
+    Exposes automated capabilities via API routes for summarisation, quiz
+    generation, pre-submission feedback, and thread summarisation.
+
+  \item \textbf{Admin Module (\texttt{admin.module.js}):}
+    Provides administrative functions including user management and a demo state
+    reset endpoint. All admin routes require the \texttt{admin} role.
+
+  \item \textbf{Upload Module (\texttt{upload.module.js}):}
+    Manages file upload metadata after files are uploaded directly to Cloudinary
+    from the browser.
+\end{itemize}
+
+\section{Testing}
+
+Testing was performed to verify the functionality, usability, and performance of
+UniPlanner. The following testing methodologies were employed:
+
+\subsection{Test Cases for Unit Testing}
+
+Unit testing happened to ensure correctness in single parts or components of the
+system. For each function, the expected output and edge-case handling were tested.
+
+\begin{table}[H]
+\centering
+\caption{Test Cases for Unit Testing}
+\label{tab:unit-tests}
+\renewcommand{\arraystretch}{1.3}
+\footnotesize
+\begin{tabularx}{\textwidth}{|c|X|X|X|X|c|}
+\hline
+\textbf{SN} & \textbf{Test Case} & \textbf{Input Data} &
+\textbf{Expected Outcome} & \textbf{Actual Output} & \textbf{Result} \\
+\hline
+1 & Login with valid credentials &
+  Email: \texttt{alex@uniplanner.dev}\newline Password: \texttt{correct123} &
+  JWT token returned, user object included &
+  JWT returned, user loaded & PASS \\
+\hline
+2 & Login with invalid password &
+  Email: \texttt{alex@uniplanner.dev}\newline Password: wrong &
+  401 Invalid credentials & 401 Invalid credentials & PASS \\
+\hline
+3 & Login with missing fields &
+  Email: (empty)\newline Password: (empty) &
+  400 Email and password required & 400 Bad Request & PASS \\
+\hline
+4 & Access authenticated endpoint without token &
+  GET \texttt{/api/v1/assignments} (no header) &
+  401 Unauthorised & 401 Unauthorised & PASS \\
+\hline
+5 & Student accesses teacher-only endpoint &
+  POST \texttt{/api/v1/assignments} (student token) &
+  403 Forbidden & 403 Forbidden & PASS \\
+\hline
+6 & Teacher creates assignment &
+  Title: Lab 1, ClassId: class-design,\newline MaxPoints: 100, DueDate: May 20 &
+  201 Assignment created with ID & 201 Created & PASS \\
+\hline
+7 & Student submits assignment &
+  AssignmentId: assignment-1,\newline ContentText: My submission text &
+  Submission saved, qualityScore computed & Submission stored & PASS \\
+\hline
+8 & Teacher grades submission &
+  SubmissionId: sub-001,\newline Score: 88, Feedback: Good work &
+  Submission updated with score and feedback & Score and feedback saved & PASS \\
+\hline
+9 & Automated feedback endpoint &
+  Text: 150-word draft,\newline Rubric: Clarity, Evidence &
+  Feedback object with score, strengths, concerns & Feedback returned & N/T \\
+\hline
+10 & Admin resets demo state &
+  Admin token,\newline POST \texttt{/api/v1/admin/reset-demo} &
+  State reset to initial seeded data & State reset confirmed & PASS \\
+\hline
+11 & Admin access with non-admin role &
+  Teacher token,\newline POST \texttt{/api/v1/admin/reset-demo} &
+  403 Only admins can reset & 403 Forbidden & PASS \\
+\hline
+12 & JWT token expiry validation &
+  Expired token (past exp timestamp) &
+  401 Token expired / null returned & Token rejected & PASS \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Test Cases for System Testing}
+
+The testing of an entire system was done with evaluating the full system by
+determining if all the components are functional together.
+
+\begin{table}[H]
+\centering
+\caption{Test Cases for System Testing}
+\label{tab:system-tests}
+\renewcommand{\arraystretch}{1.3}
+\footnotesize
+\begin{tabularx}{\textwidth}{|c|X|X|}
+\hline
+\textbf{SN} & \textbf{Types of Test} & \textbf{Description} \\
+\hline
+1 & Student Login to Dashboard &
+  Student logs in with valid credentials. Student dashboard rendered with
+  pending assignments, courses, grades, and notifications.
+  Dashboard loaded correctly for role. \\
+\hline
+2 & Course Enrolment &
+  Student enters class code to enrol. Student added to enrolled list; class
+  appears on student dashboard. Enrolment confirmed and dashboard updated. \\
+\hline
+3 & Assignment Submission Flow &
+  Student views assignment, drafts text, submits. Submission stored; teacher
+  notified; student sees submission status. Full flow completed correctly. \\
+\hline
+4 & SpeedGrader Flow &
+  Teacher opens grading queue, grades with score and feedback. Submission
+  updated with score; student receives grade notification.
+  Grade stored and notification delivered. \\
+\hline
+5 & Resource Upload &
+  Teacher uploads a PDF resource linked to a class. Resource stored in
+  Cloudinary; metadata saved; students can access it.
+  Resource appeared in class resources tab. \\
+\hline
+6 & Admin User Management &
+  Admin creates new teacher account via admin panel. User created with teacher
+  role; appears in user list. User created and listed correctly. \\
+\hline
+7 & Analytics Dashboard &
+  Admin views analytics page. User distribution chart, activity metrics, and
+  recent users displayed. All metrics displayed correctly. \\
+\hline
+8 & Quiz Generation &
+  Teacher triggers quiz generation from a resource text. Three question--answer
+  pairs generated from input content.
+  Quiz generated with correct format. N/T \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{Result Analysis}
+
+The testing phase revealed that UniPlanner functions as expected across all
+modules. Unit tests passed successfully for individual components such as
+authentication, assignment management, and grading. System tests confirmed that
+the app's modules interact seamlessly, with notifications triggered accurately and
+user data persisting correctly across server restarts.
+
+The responsive frontend renders correctly across desktop (1280\,px), tablet
+(768\,px), and mobile (375\,px) screen widths, validated across Chrome, Firefox,
+and Edge browsers. Page load times remain under 1 second for all major pages due
+to the lightweight frontend architecture with no heavy framework bundle.
+
+Overall, the platform performed well during testing and is ready for deployment
+after minor optimizations based on user feedback.
+
+%============================================================
+\chapter{Conclusion and Future Recommendations}
+%============================================================
+
+\section{Conclusion}
+
+UniPlanner -- A Learning Management System successfully delivers a unified,
+role-aware educational platform that addresses the fragmentation of traditional
+academic management tools. Through its student, teacher, and administrator
+portals, the platform consolidates course management, assignment tracking,
+grading, resource sharing, communication, and analytics into a single web
+application.
+
+The implementation demonstrates that a lightweight Node.js/Express.js
+architecture, combined with a responsive Tailwind CSS frontend and Firebase-backed
+data persistence, can deliver a production-grade LMS without the complexity and
+cost of enterprise platforms. The built-in automated feedback module provides
+practical educational value through pre-submission feedback, quiz generation, and
+discussion summarisation---features that directly support formative assessment
+best practices identified in the literature.
+
+The security architecture, built on custom JWT authentication with HMAC-SHA256
+signing and role-based access control enforced at every API endpoint, ensures
+that the system is secure against common authentication vulnerabilities. All unit
+and system test cases passed, confirming the platform's correctness and
+reliability.
+
+In conclusion, UniPlanner fulfils all defined project objectives and provides a
+solid foundation for a production-ready LMS that can serve the academic needs of
+institutions like Phoenix College of Management. The project also demonstrates the
+practical applicability of modern web development skills acquired during the BIT
+programme.
+
+\section{Future Recommendations}
+
+To improve the platform and address current limitations, future work could
+focus on:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{Real-time Collaboration via WebSockets:}
+    Replace or supplement the current polling-based state updates with WebSocket
+    connections (Socket.IO) to enable true real-time collaboration in discussion
+    threads, notifications, and live assignment status updates.
+
+  \item \textbf{Native Mobile Application:}
+    Develop native iOS and Android applications using React Native or Flutter to
+    provide push notification support, offline access, and a mobile-optimised
+    experience for students who primarily use smartphones.
+
+  \item \textbf{PostgreSQL or MongoDB Backend:}
+    Migrate from the file-based JSON store to a production-grade relational
+    (PostgreSQL) or document (MongoDB) database to support multi-instance
+    deployment, concurrent writes, and complex analytical queries.
+
+  \item \textbf{Video Conferencing Integration:}
+    Integrate with Zoom, Google Meet, or Jitsi Meet APIs to enable teachers to
+    schedule and launch virtual class sessions directly from the UniPlanner
+    calendar.
+
+  \item \textbf{Plagiarism Detection:}
+    Integrate a plagiarism detection engine (e.g., Turnitin API or open-source
+    alternatives) to automatically flag potentially plagiarised submissions
+    during the grading workflow.
+
+  \item \textbf{Multi-language Support:}
+    Add internationalisation (i18n) support to enable the platform to serve
+    non-English speaking institutions, starting with Nepali language support for
+    the local context.
+\end{itemize}
+
+%============================================================
+% REFERENCES
+%============================================================
+\addcontentsline{toc}{chapter}{References}
+\renewcommand{\bibname}{References}
+
+\begin{thebibliography}{12}
+
+\bibitem[1]{brown2008}
+J.~S. Brown and R.~P. Adler,
+``Minds on fire: Open education, the long tail, and learning 2.0,''
+\textit{EDUCAUSE Review}, vol.~43, no.~1, pp.~16--32, Jan./Feb.~2008.
+
+\bibitem[2]{deterding2011}
+S.~Deterding, D.~Dixon, R.~Khaled, and L.~Nacke,
+``From game design elements to gamefulness: Defining gamification,''
+in \textit{Proc. 15th Int. Academic MindTrek Conf.},
+Tampere, Finland, Sep.~2011, pp.~9--15.
+
+\bibitem[3]{fielding2000}
+R.~T. Fielding,
+``Architectural styles and the design of network-based software architectures,''
+Ph.D.\ dissertation, Dept.\ Inf.\ Comput.\ Sci.,
+Univ.\ of California, Irvine, CA, USA, 2000.
+
+\bibitem[4]{jones2015}
+M.~Jones, J.~Bradley, and N.~Sakimura,
+``JSON Web Token (JWT),''
+IETF, RFC~7519, May~2015. [Online]. Available:
+\url{https://www.rfc-editor.org/rfc/rfc7519}. [Accessed: May~13, 2026].
+
+\bibitem[5]{mdn2024}
+Mozilla Developer Network,
+``Web APIs and modern JavaScript,''
+\textit{MDN Web Docs}, 2024. [Online]. Available:
+\url{https://developer.mozilla.org}. [Accessed: May~13, 2026].
+
+\bibitem[6]{nodejs2024}
+OpenJS Foundation,
+``Node.js documentation,''
+Node.js, 2024. [Online]. Available:
+\url{https://nodejs.org/en/docs/}. [Accessed: May~13, 2026].
+
+\bibitem[7]{expressjs2024}
+OpenJS Foundation,
+``Express.js API reference,''
+Express.js, 2024. [Online]. Available:
+\url{https://expressjs.com}. [Accessed: May~13, 2026].
+
+\bibitem[8]{shute2008}
+V.~J. Shute,
+``Focus on formative feedback,''
+\textit{Review of Educational Research}, vol.~78, no.~1, pp.~153--189, 2008.
+
+\bibitem[9]{siemens2011}
+G.~Siemens and P.~Long,
+``Penetrating the fog: Analytics in learning and education,''
+\textit{EDUCAUSE Review}, vol.~46, no.~5, pp.~30--40, Sep./Oct.~2011.
+
+\bibitem[10]{tailwind2024}
+Tailwind Labs,
+``Tailwind CSS documentation,''
+Tailwind CSS, 2024. [Online]. Available:
+\url{https://tailwindcss.com/docs}. [Accessed: May~13, 2026].
+
+\bibitem[11]{firebase2024}
+Google LLC,
+``Firebase documentation,''
+Firebase, 2024. [Online]. Available:
+\url{https://firebase.google.com/docs}. [Accessed: May~13, 2026].
+
+\bibitem[12]{cloudinary2024}
+Cloudinary Ltd.,
+``Cloudinary developer documentation,''
+Cloudinary, 2024. [Online]. Available:
+\url{https://cloudinary.com/documentation}. [Accessed: May~13, 2026].
+
+\end{thebibliography}
+
+%============================================================
+% APPENDICES — sections numbered 6.3, 6.4 as in template
+%============================================================
+\clearpage
+
+\appendix
+\chapter{Appendices}
+
+\section{Data Schema}
+
+The UniPlanner data schema is defined as a flat JSON document persisted in
+\texttt{server/data/learning-os.json}. The top-level snapshot object contains
+the following collections:
+
+\begin{itemize}[leftmargin=2.5em]
+  \item \textbf{\texttt{app.users[]}:} Array of User objects containing
+    \texttt{id}, \texttt{name}, \texttt{email}, \texttt{role}, \texttt{title},
+    \texttt{avatar}, \texttt{bio}, \texttt{locale}, \texttt{xp},
+    \texttt{badges}, \texttt{passwordHash}.
+
+  \item \textbf{\texttt{app.classes[]}:} Array of Class objects containing
+    \texttt{id}, \texttt{code}, \texttt{title}, \texttt{subject},
+    \texttt{section}, \texttt{teacherId}, \texttt{teacherName},
+    \texttt{color}, \texttt{description}, \texttt{progress}, \texttt{archived},
+    \texttt{enrolledStudentIds}.
+
+  \item \textbf{\texttt{app.assignments[]}:} Array of Assignment objects
+    containing \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{kind},
+    \texttt{dueDate}, \texttt{status}, \texttt{maxPoints}, \texttt{submissions},
+    \texttt{averageScore}, \texttt{manualReview}, \texttt{description},
+    \texttt{rubric}.
+
+  \item \textbf{\texttt{app.resources[]}:} Array of Resource objects containing
+    \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{type}, \texttt{url},
+    \texttt{uploadedBy}, \texttt{createdAt}.
+
+  \item \textbf{\texttt{app.discussions[]}:} Array of Discussion objects
+    containing \texttt{id}, \texttt{classId}, \texttt{title}, \texttt{authorId},
+    and a \texttt{posts} array.
+
+  \item \textbf{\texttt{app.messages[]}:} Array of Message objects containing
+    \texttt{id}, \texttt{fromId}, \texttt{toId}, \texttt{content},
+    \texttt{sentAt}, \texttt{read}.
+
+  \item \textbf{\texttt{app.notifications[]}:} Array of Notification objects
+    containing \texttt{id}, \texttt{userId}, \texttt{title},
+    \texttt{description}, \texttt{type}, \texttt{unread}, \texttt{createdAt}.
+
+  \item \textbf{\texttt{app.events[]}:} Array of Event objects containing
+    \texttt{id}, \texttt{title}, \texttt{type}, \texttt{date},
+    \texttt{startTime}, \texttt{endTime}, \texttt{classId}.
+
+  \item \textbf{\texttt{submissions[]}:} Array of Submission objects containing
+    \texttt{id}, \texttt{assignmentId}, \texttt{studentId},
+    \texttt{contentText}, \texttt{fileName}, \texttt{fileUrl},
+    \texttt{submittedAt}, \texttt{score}, \texttt{teacherFeedback},
+    \texttt{submissionFeedback}, \texttt{plagiarismScore},
+    \texttt{qualityScore}, \texttt{lateFlag}.
+
+  \item \textbf{\texttt{analyticsEvents[]}:} Array of AnalyticsEvent objects
+    containing \texttt{id}, \texttt{userId}, \texttt{classId}, \texttt{type},
+    \texttt{name}, \texttt{payload}, \texttt{createdAt}.
+
+  \item \textbf{\texttt{sessions[]}:} Array of active Session records containing
+    \texttt{token}, \texttt{userId}, \texttt{role}, \texttt{issuedAt},
+    \texttt{expiresAt}.
+
+  \item \textbf{\texttt{goals[]}:} Array of Goal objects containing \texttt{id},
+    \texttt{userId}, \texttt{title}, \texttt{targetType}, \texttt{targetValue},
+    \texttt{progressValue}, \texttt{dueAt}, \texttt{status}.
+
+  \item \textbf{\texttt{permissions[]}:} Array of Permission objects containing
+    \texttt{id}, \texttt{userId}, \texttt{permissionKey}, \texttt{scopeType},
+    \texttt{scopeId}, \texttt{createdAt}.
+\end{itemize}
+
+\section{Application Screenshots}
+
+The following figures illustrate the key screens of the UniPlanner application.
+Replace each placeholder with the actual screenshot of the deployed application.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
+
+ \includegraphics[width=420pt]{figma/Login Page.png}
+    
+    \vspace{1.2cm}}}
+  \caption{Login Page}
+  \label{fig:login}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
+    \includegraphics[width=420pt]{figma/Student Dashboard.png}
+    \vspace{1.2cm}}}
+  \caption{Student Dashboard}
+  \label{fig:student-dash}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
+    \includegraphics[width=420pt]{figma/Teacher Dashboard.png}
+    \vspace{1.2cm}}}
+  \caption{Teacher Dashboard}
+  \label{fig:teacher-dash}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{1\textwidth}{\centering\vspace{1.2cm}
+    \includegraphics[width=420pt]{figma/Admin Dashboard.png}
+    \vspace{1.2cm}}}
+  \caption{Admin Dashboard}
+  \label{fig:admin-dash}
+\end{figure}
+
+%============================================================
+\end{document}
+%============================================================

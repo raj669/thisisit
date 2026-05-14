@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — NepalHomes</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); padding: 20px; }
+    .stat-val { font-size: 2rem; font-weight: 700; color: var(--stone-900); line-height: 1; }
+    .stat-lbl { font-size: 0.78rem; color: var(--stone-400); margin-top: 6px; }
+    .section-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--stone-100); padding: 20px; margin-bottom: 24px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .admin-table th { text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--stone-100); font-size: 0.72rem; color: var(--stone-400); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-table td { padding: 11px 12px; border-bottom: 1px solid var(--stone-50); vertical-align: middle; }
+    .admin-table tr:hover td { background: var(--stone-50); }
+    .admin-table .empty-row td { text-align: center; padding: 36px; color: var(--stone-400); }
+    .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pill-pending  { background: #fef9c3; color: #854d0e; }
+    .pill-approved { background: #dcfce7; color: #14532d; }
+    .pill-rejected { background: #fee2e2; color: #7f1d1d; }
+    .pill-buyer    { background: #e0f2fe; color: #075985; }
+    .pill-seller   { background: #fef9c3; color: #854d0e; }
+    .pill-admin    { background: #f3e8ff; color: #6b21a8; }
+    .act-btn { padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.74rem; font-weight: 600; border: 1px solid; cursor: pointer; transition: var(--transition); }
+    .act-approve { background: #dcfce7; color: #14532d; border-color: #86efac; }
+    .act-approve:hover { background: #bbf7d0; }
+    .act-reject  { background: #fee2e2; color: #7f1d1d; border-color: #fca5a5; }
+    .act-reject:hover  { background: #fecaca; }
+    .act-pending { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+    .act-pending:hover { background: #e2e8f0; }
+    .filter-tabs { display: flex; gap: 4px; background: var(--stone-100); border-radius: var(--radius); padding: 4px; }
+    .filter-tab { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; background: none; color: var(--stone-500); transition: var(--transition); }
+    .filter-tab.active { background: white; color: var(--stone-800); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .page-loading { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 12px; }
+    @media (max-width: 768px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 500px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<div id="pageLoader" class="page-loading">
+  <div style="font-size:2.5rem;">🏠</div>
+  <p class="text-muted text-sm">Loading admin panel…</p>
+</div>
+
+<div id="navbar"></div>
+
+<div class="container page-content" id="adminContent" style="display:none;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 style="font-size:1.6rem;">Admin Dashboard</h1>
+      <p class="text-muted text-sm" id="adminWelcome">Nepal Real Estate Finder — Administration</p>
+    </div>
+    <span class="status-pill pill-admin" style="font-size:0.8rem;padding:5px 14px;">ADMIN</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-lbl">Total Submitted Properties</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statPending" style="color:#b45309;">—</div>
+      <div class="stat-lbl">Pending Review</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statApproved" style="color:#15803d;">—</div>
+      <div class="stat-lbl">Approved</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statUsers">—</div>
+      <div class="stat-lbl">Registered Users</div>
+    </div>
+  </div>
+
+  <!-- Pending Approvals -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2 style="font-size:1rem;display:flex;align-items:center;gap:10px;">
+        Pending Approvals
+        <span id="pendingBadge" class="status-pill pill-pending">0</span>
+      </h2>
+      <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">↻ Refresh</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Property</th><th>Type / Purpose</th><th>Location</th>
+            <th>Price</th><th>Seller</th><th>Submitted</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pendingTable">
+          <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- All Submitted Properties -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2 style="font-size:1rem;">All Submitted Properties</h2>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterAll('all',this)">All</button>
+        <button class="filter-tab" onclick="filterAll('pending',this)">Pending</button>
+        <button class="filter-tab" onclick="filterAll('approved',this)">Approved</button>
+        <button class="filter-tab" onclick="filterAll('rejected',this)">Rejected</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Property</th><th>Type / Purpose</th><th>Location</th>
+            <th>Price</th><th>Seller</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="allTable">
+          <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Registered Users -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2 style="font-size:1rem;">Registered Users</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Phone</th><th>Joined</th></tr>
+        </thead>
+        <tbody id="usersTable">
+          <tr class="empty-row"><td colspan="5">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  let _allProperties = [];
+  let _currentFilter = 'all';
+
+  requireAuth(async function(user) {
+    if (user.role !== 'admin') {
+      alert('Access denied. Admin accounts only.');
+      location.href = 'index.html';
+      return;
+    }
+    document.getElementById('adminWelcome').textContent = 'Welcome, ' + user.name + ' — Nepal Real Estate Finder';
+    document.getElementById('pageLoader').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    await loadDashboard();
+  });
+
+  async function loadDashboard() {
+    await Promise.all([loadProperties(), loadUsers()]);
+  }
+
+  async function loadProperties() {
+    try {
+      const snap = await db.collection('properties').orderBy('createdAt', 'desc').get();
+      _allProperties = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    } catch (_) {
+      try {
+        const snap = await db.collection('properties').get();
+        _allProperties = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      } catch (__) { _allProperties = []; }
+    }
+
+    const pending  = _allProperties.filter(p => p.status === 'pending');
+    const approved = _allProperties.filter(p => p.status === 'approved');
+
+    document.getElementById('statTotal').textContent    = _allProperties.length;
+    document.getElementById('statPending').textContent  = pending.length;
+    document.getElementById('statApproved').textContent = approved.length;
+    document.getElementById('pendingBadge').textContent = pending.length;
+
+    renderPendingTable(pending);
+    renderAllTable(_allProperties);
+  }
+
+  async function loadUsers() {
+    try {
+      const snap = await db.collection('users').get();
+      const users = snap.docs.map(d => d.data());
+      document.getElementById('statUsers').textContent = users.length;
+      document.getElementById('usersTable').innerHTML = users.length === 0
+        ? '<tr class="empty-row"><td colspan="5">No registered users yet</td></tr>'
+        : users.map(u => `
+            <tr>
+              <td style="font-weight:600;">${(u.firstName||'') + ' ' + (u.lastName||'')}</td>
+              <td style="color:var(--stone-500);">${u.email || '—'}</td>
+              <td><span class="status-pill pill-${u.role||'buyer'}">${u.role||'buyer'}</span></td>
+              <td>${u.phone || '—'}</td>
+              <td>${u.createdAt ? new Date(u.createdAt.toDate ? u.createdAt.toDate() : u.createdAt).toLocaleDateString('en-GB') : '—'}</td>
+            </tr>`).join('');
+    } catch (_) {
+      document.getElementById('usersTable').innerHTML = '<tr class="empty-row"><td colspan="5">Could not load users — check Firestore rules</td></tr>';
+    }
+  }
+
+  function locationStr(p) {
+    return [p.tole, p.municipality, p.district, p.city].filter(Boolean).join(', ') || '—';
+  }
+
+  function dateStr(createdAt) {
+    if (!createdAt) return '—';
+    const d = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+    return d.toLocaleDateString('en-GB');
+  }
+
+  function renderPendingTable(items) {
+    const tbody = document.getElementById('pendingTable');
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No properties pending review</td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(p => `
+      <tr id="prow-${p.firestoreId}">
+        <td>
+          <div style="font-weight:600;font-size:0.85rem;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title || 'Untitled'}</div>
+        </td>
+        <td style="text-transform:capitalize;">${p.type||'—'}<br><span style="font-size:0.72rem;color:var(--stone-400);">${p.purpose==='for_rent'?'For Rent':'For Sale'}</span></td>
+        <td style="font-size:0.8rem;color:var(--stone-600);">${locationStr(p)}</td>
+        <td style="font-weight:600;">Rs.&nbsp;${Number(p.price||0).toLocaleString()}</td>
+        <td style="font-size:0.82rem;">${p.sellerName||'—'}</td>
+        <td style="font-size:0.78rem;color:var(--stone-400);">${dateStr(p.createdAt)}</td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="act-btn act-approve" onclick="changeStatus('${p.firestoreId}','approved')">Approve</button>
+            <button class="act-btn act-reject"  onclick="changeStatus('${p.firestoreId}','rejected')">Reject</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function renderAllTable(items) {
+    const filtered = _currentFilter === 'all' ? items : items.filter(p => p.status === _currentFilter);
+    const tbody = document.getElementById('allTable');
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No properties found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtered.map(p => `
+      <tr id="arow-${p.firestoreId}">
+        <td>
+          <div style="font-weight:600;font-size:0.85rem;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title||'Untitled'}</div>
+        </td>
+        <td style="text-transform:capitalize;">${p.type||'—'}<br><span style="font-size:0.72rem;color:var(--stone-400);">${p.purpose==='for_rent'?'For Rent':'For Sale'}</span></td>
+        <td style="font-size:0.8rem;color:var(--stone-600);">${locationStr(p)}</td>
+        <td style="font-weight:600;">Rs.&nbsp;${Number(p.price||0).toLocaleString()}</td>
+        <td style="font-size:0.82rem;">${p.sellerName||'—'}</td>
+        <td><span class="status-pill pill-${p.status||'pending'}">${p.status||'pending'}</span></td>
+        <td>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            ${p.status !== 'approved' ? `<button class="act-btn act-approve" onclick="changeStatus('${p.firestoreId}','approved')">Approve</button>` : ''}
+            ${p.status !== 'rejected' ? `<button class="act-btn act-reject"  onclick="changeStatus('${p.firestoreId}','rejected')">Reject</button>` : ''}
+            ${p.status !== 'pending'  ? `<button class="act-btn act-pending" onclick="changeStatus('${p.firestoreId}','pending')">Set Pending</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  async function changeStatus(firestoreId, newStatus) {
+    try {
+      await db.collection('properties').doc(firestoreId).update({ status: newStatus });
+      const idx = _allProperties.findIndex(p => p.firestoreId === firestoreId);
+      if (idx !== -1) _allProperties[idx].status = newStatus;
+
+      const pending  = _allProperties.filter(p => p.status === 'pending');
+      const approved = _allProperties.filter(p => p.status === 'approved');
+      document.getElementById('statPending').textContent  = pending.length;
+      document.getElementById('statApproved').textContent = approved.length;
+      document.getElementById('pendingBadge').textContent = pending.length;
+      renderPendingTable(pending);
+      renderAllTable(_allProperties);
+    } catch (e) {
+      alert('Error updating status: ' + e.message);
+    }
+  }
+
+  function filterAll(f, btn) {
+    _currentFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAllTable(_allProperties);
+  }
+</script>
+</body>
+</html>
